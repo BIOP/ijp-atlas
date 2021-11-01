@@ -1,4 +1,4 @@
-package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v2;
+package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4;
 
 import ch.epfl.biop.atlas.struct.Atlas;
 import ij.Prefs;
@@ -13,13 +13,13 @@ import java.net.URL;
 // Take ply files from : http://download.alleninstitute.org/informatics-archive/current-release/mouse_ccf/annotation/ccf_2017/structure_meshes/ply/
 
 @Plugin(type = Command.class, menuPath = "Plugins>BIOP>Atlas>Rat (Waxholm Sprague Dawley V2)")
-public class WaxholmSpragueDawleyRatV2Command extends WaxholmSpragueDawleyRatV2Atlas implements Command {
+public class WaxholmSpragueDawleyRatV4Command extends WaxholmSpragueDawleyRatV4Atlas implements Command {
 
 	public String toString() {
 		return "Rat - Waxholm Sprague Dawley V2";
 	}
 	
-	public static String keyPrefix = WaxholmSpragueDawleyRatV2Command.class.getName()+".";
+	public static String keyPrefix = WaxholmSpragueDawleyRatV4Command.class.getName()+".";
 
 	@Parameter(label = "URL path to brain map data, leave empty for downloading and caching", persist = false)
 	String mapUrl = Prefs.get(keyPrefix+"mapUrl","");

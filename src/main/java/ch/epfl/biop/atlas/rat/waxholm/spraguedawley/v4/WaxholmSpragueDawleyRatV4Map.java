@@ -1,4 +1,4 @@
-package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v2;
+package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4;
 
 import bdv.util.RealRandomAccessibleIntervalSource;
 import bdv.viewer.Source;
@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 
 import static ch.epfl.biop.atlas.struct.AtlasHelper.getCoordinateSac;
 
-public class WaxholmSpragueDawleyRatV2Map implements AtlasMap {
+public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
 
     URL dataSource;
 

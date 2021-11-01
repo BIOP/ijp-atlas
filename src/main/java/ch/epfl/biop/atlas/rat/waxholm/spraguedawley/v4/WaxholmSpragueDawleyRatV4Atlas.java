@@ -1,4 +1,4 @@
-package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v2;
+package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4;
 
 import ch.epfl.biop.atlas.struct.AtlasMap;
 import ch.epfl.biop.atlas.struct.AtlasOntology;
@@ -8,10 +8,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WaxholmSpragueDawleyRatV2Atlas implements Atlas {
+public class WaxholmSpragueDawleyRatV4Atlas implements Atlas {
 
-    WaxholmSpragueDawleyRatV2Map map;
-    WaxholmSpragueDawleyRatV2Ontology ontology;
+    WaxholmSpragueDawleyRatV4Map map;
+    WaxholmSpragueDawleyRatV4Ontology ontology;
 
     @Override
     public AtlasMap getMap() {
@@ -25,12 +25,12 @@ public class WaxholmSpragueDawleyRatV2Atlas implements Atlas {
 
     @Override
     public void initialize(URL mapURL, URL ontologyURL) {
-        ontology = new WaxholmSpragueDawleyRatV2Ontology();
+        ontology = new WaxholmSpragueDawleyRatV4Ontology();
         ontology.setDataSource(ontologyURL);
 
         try {
             ontology.initialize();
-            map = new WaxholmSpragueDawleyRatV2Map();
+            map = new WaxholmSpragueDawleyRatV4Map();
             map.setDataSource(mapURL);
             map.initialize(this.toString());
         } catch (Exception e) {

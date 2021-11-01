@@ -1,4 +1,4 @@
-package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v2;
+package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4;
 
 import ch.epfl.biop.atlas.struct.AtlasNode;
 import ch.epfl.biop.atlas.struct.AtlasOntology;
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WaxholmSpragueDawleyRatV2Ontology implements AtlasOntology {
+public class WaxholmSpragueDawleyRatV4Ontology implements AtlasOntology {
 
     URL dataSource;
 
