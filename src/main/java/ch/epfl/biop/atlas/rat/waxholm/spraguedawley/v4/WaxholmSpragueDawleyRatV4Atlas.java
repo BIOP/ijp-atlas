@@ -56,7 +56,7 @@ public class WaxholmSpragueDawleyRatV4Atlas implements Atlas {
 
     @Override
     public String getName() {
-        return "Waxholm Sprague-Dawley Rat Atlas V2";
+        return "Waxholm Sprague-Dawley Rat Atlas V4";
     }
 
     @Override

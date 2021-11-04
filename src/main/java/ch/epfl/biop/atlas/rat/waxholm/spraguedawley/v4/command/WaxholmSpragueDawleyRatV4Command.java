@@ -1,5 +1,7 @@
-package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4;
+package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4.command;
 
+import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4.WaxholmSpragueDawleyRatV4Atlas;
+import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4.WaxholmSpragueDawleyRatV4Downloader;
 import ch.epfl.biop.atlas.struct.Atlas;
 import ij.Prefs;
 import org.scijava.ItemIO;
@@ -10,13 +12,11 @@ import org.scijava.plugin.Plugin;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-// Take ply files from : http://download.alleninstitute.org/informatics-archive/current-release/mouse_ccf/annotation/ccf_2017/structure_meshes/ply/
-
-@Plugin(type = Command.class, menuPath = "Plugins>BIOP>Atlas>Rat (Waxholm Sprague Dawley V2)")
+@Plugin(type = Command.class, menuPath = "Plugins>BIOP>Atlas>Rat (Waxholm Sprague Dawley V4)")
 public class WaxholmSpragueDawleyRatV4Command extends WaxholmSpragueDawleyRatV4Atlas implements Command {
 
 	public String toString() {
-		return "Rat - Waxholm Sprague Dawley V2";
+		return "Rat - Waxholm Sprague Dawley V4";
 	}
 	
 	public static String keyPrefix = WaxholmSpragueDawleyRatV4Command.class.getName()+".";
@@ -34,10 +34,10 @@ public class WaxholmSpragueDawleyRatV4Command extends WaxholmSpragueDawleyRatV4A
 	public void run() {
         try {
         	URL mapURL, ontologyURL;
-        	/*if ((mapUrl == null)||(mapUrl.equals(""))||(ontologyUrl == null)||(ontologyUrl.equals(""))) {
-				mapURL = AllenBrainCCFv3Downloader.getMapUrl();
-				ontologyURL = AllenBrainCCFv3Downloader.getOntologyURL();
-			} else */
+        	if ((mapUrl == null)||(mapUrl.equals(""))||(ontologyUrl == null)||(ontologyUrl.equals(""))) {
+				mapURL = WaxholmSpragueDawleyRatV4Downloader.getMapUrl();
+				ontologyURL = WaxholmSpragueDawleyRatV4Downloader.getOntologyURL();
+			} else
 			{
 				mapURL = new URL(mapUrl);
 				ontologyURL = new URL(ontologyUrl);

@@ -1,4 +1,4 @@
-package ilfparser;
+package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.ilfparser;
 
 import javax.xml.bind.JAXBContext;
 import java.io.FileReader;

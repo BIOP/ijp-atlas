@@ -61,10 +61,12 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
 
         atlasSources.put("Structure", sacs.get(0));
 
-        labelSource = sacs.get(1);
+        atlasSources.put("Labels Border", sacs.get(1));
+
+        labelSource = sacs.get(2);
 
         BiConsumer<RealLocalizable, UnsignedShortType> leftRightIndicator = (l, t ) -> {
-            if (l.getFloatPosition(0)>9.5) { // 11.4 mm / 2
+            if (l.getFloatPosition(0)>0) { // 11.4 mm / 2
                 t.set(255);
             } else {
                 t.set(0);
@@ -106,6 +108,7 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
     public List<String> getImagesKeys() {
         List<String> keys = new ArrayList<>();
         keys.add("Structure");
+        keys.add("Labels Border");
         keys.add("X");
         keys.add("Y");
         keys.add("Z");
@@ -120,7 +123,7 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
 
     @Override
     public Double getAtlasPrecisionInMillimeter() {
-        return 0.040;
+        return 0.039;
     }
 
     @Override
@@ -132,7 +135,8 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
     @Override
     public Double getImageMax(String key) {
         switch (key) {
-            case "Structure": return (double) 35000;
+            case "Structure": return (double) 80000;
+            case "Labels Border": return (double) 1024;
             default: return (double) 65535;
         }
     }

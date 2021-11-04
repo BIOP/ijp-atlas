@@ -14,7 +14,7 @@
 
 	<groupId>ch.epfl.biop</groupId>
 	<artifactId>atlas</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.1-SNAPSHOT</version>
 
 	<name>Atlases</name>
 	<description>Repo containing a standard API for Atlases and some example ones</description>
@@ -107,7 +107,7 @@
 		<package-name>ch.epfl.biop.atlas</package-name>
 		<license.licenseName>gpl_v3</license.licenseName>
 		<license.copyrightOwners>EPFL</license.copyrightOwners>
-		<bigdataviewer-playground.version>0.3.99-SNAPSHOT</bigdataviewer-playground.version>
+		<bigdataviewer-playground.version>0.3.13</bigdataviewer-playground.version>
 		<!-- <scijava.app.directory>C:/Fiji_template</scijava.app.directory> -->
 		<!-- <scijava.app.subdirectory>plugins/BIOP</scijava.app.subdirectory> -->
 	</properties>
