@@ -108,8 +108,6 @@
 		<license.licenseName>gpl_v3</license.licenseName>
 		<license.copyrightOwners>EPFL</license.copyrightOwners>
 		<bigdataviewer-playground.version>0.3.13</bigdataviewer-playground.version>
-		<!-- <scijava.app.directory>C:/Fiji_template</scijava.app.directory> -->
-		<!-- <scijava.app.subdirectory>plugins/BIOP</scijava.app.subdirectory> -->
 	</properties>
 
 	<repositories>
@@ -120,23 +118,28 @@
 	</repositories>
 
 	<dependencies>
+
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>imagej</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>bigdataviewer-core</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>bigdataviewer-playground</artifactId>
 			<version>${bigdataviewer-playground.version}</version>
 		</dependency>
+
 	</dependencies>
 </project>
