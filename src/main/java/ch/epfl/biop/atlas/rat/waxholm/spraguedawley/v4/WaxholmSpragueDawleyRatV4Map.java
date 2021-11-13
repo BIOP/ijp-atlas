@@ -66,7 +66,7 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
         labelSource = sacs.get(2);
 
         BiConsumer<RealLocalizable, UnsignedShortType> leftRightIndicator = (l, t ) -> {
-            if (l.getFloatPosition(0)>0) { // 11.4 mm / 2
+            if (l.getFloatPosition(0)<0) {
                 t.set(255);
             } else {
                 t.set(0);
@@ -127,8 +127,10 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
     }
 
     @Override
-    public AffineTransform3D getPreSlicingTransform() {
+    public AffineTransform3D getCoronalTransform() {
         AffineTransform3D at3d = new AffineTransform3D();
+        at3d.rotate(0,-Math.PI/2);
+        at3d.rotate(2,Math.PI);
         return at3d;
     }
 

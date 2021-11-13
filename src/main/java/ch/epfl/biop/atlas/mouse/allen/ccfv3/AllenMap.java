@@ -61,7 +61,7 @@ public class AllenMap implements AtlasMap {
 		labelSource = sacs.get(AllenMap.LabelSetupId);
 
 		BiConsumer<RealLocalizable, UnsignedShortType > leftRightIndicator = (l, t ) -> {
-			if (l.getFloatPosition(2)>5.7) { // 11.4 mm / 2
+			if (l.getFloatPosition(2)<5.7) { // 11.4 mm / 2
 				t.set(255);
 			} else {
 				t.set(0);
@@ -130,8 +130,10 @@ public class AllenMap implements AtlasMap {
 	}
 
 	@Override
-	public AffineTransform3D getPreSlicingTransform() {
-		return new AffineTransform3D();
+	public AffineTransform3D getCoronalTransform() {
+		AffineTransform3D coronalTransform = new AffineTransform3D();
+		coronalTransform.rotate(1,Math.PI/2);
+		return coronalTransform;
 	}
 
 	@Override

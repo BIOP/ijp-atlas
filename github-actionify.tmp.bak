@@ -14,7 +14,7 @@
 
 	<groupId>ch.epfl.biop</groupId>
 	<artifactId>atlas</artifactId>
-	<version>0.1.1-SNAPSHOT-local</version>
+	<version>0.1.1-SNAPSHOT</version>
 
 	<name>Atlases</name>
 	<description>Repo containing a standard API for Atlases and some example ones</description>
@@ -108,9 +108,6 @@
 		<license.licenseName>gpl_v3</license.licenseName>
 		<license.copyrightOwners>EPFL</license.copyrightOwners>
 		<bigdataviewer-playground.version>0.3.13</bigdataviewer-playground.version>
-
-		<!-- NB: Deploy releases to the SciJava Maven repository. -->
-		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 	</properties>
 
 	<repositories>
