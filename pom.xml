@@ -104,6 +104,8 @@
 	</ciManagement>
 
 	<properties>
+
+		<license.excludes>**/resources/**</license.excludes>
 		<package-name>ch.epfl.biop.atlas</package-name>
 		<license.licenseName>gpl_v3</license.licenseName>
 		<license.copyrightOwners>EPFL</license.copyrightOwners>
