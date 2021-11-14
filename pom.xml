@@ -88,15 +88,15 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git://github.com/</connection>
-		<developerConnection>scm:git:git@github.com:</developerConnection>
+		<connection>scm:git:git://github.com/BIOP/ijp-atlas</connection>
+		<developerConnection>scm:git:git@github.com:BIOP/ijp-atlas</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/</url>
+		<url>https://github.com/BIOP/ijp-imagetoatlas</url>
 	</scm>
 	
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url></url>
+		<url>https://github.com/BIOP/ijp-imagetoatlas/issues</url>
 	</issueManagement>
 
 	<ciManagement>
