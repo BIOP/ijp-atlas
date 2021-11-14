@@ -88,12 +88,12 @@
 		<connection>scm:git:git://github.com/BIOP/ijp-atlas</connection>
 		<developerConnection>scm:git:git@github.com:BIOP/ijp-atlas</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/BIOP/ijp-imagetoatlas</url>
+		<url>https://github.com/BIOP/ijp-atlas</url>
 	</scm>
 	
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/BIOP/ijp-imagetoatlas/issues</url>
+		<url>https://github.com/BIOP/ijp-atlas/issues</url>
 	</issueManagement>
 
 	<ciManagement>
