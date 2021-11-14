@@ -2,6 +2,7 @@ package ch.epfl.biop.atlas.mouse.allen.ccfv3.command;
 
 import ch.epfl.biop.atlas.mouse.allen.ccfv3.AllenAtlas;
 import ch.epfl.biop.atlas.mouse.allen.ccfv3.AllenBrainCCFv3Downloader;
+import ch.epfl.biop.atlas.mouse.allen.ccfv3.AllenOntology;
 import ch.epfl.biop.atlas.struct.Atlas;
 import ij.Prefs;
 import org.scijava.ItemIO;
@@ -47,6 +48,7 @@ public class AllenBrainAdultMouseAtlasCCF2017Command extends AllenAtlas implemen
 			}
 
 			this.initialize(mapURL, ontologyURL);
+			((AllenOntology)this.getOntology()).name = getName();
 
 	        Prefs.set(keyPrefix + "mapUrl", mapURL.toString());
 	        Prefs.set(keyPrefix + "ontologyUrl", ontologyURL.toString());

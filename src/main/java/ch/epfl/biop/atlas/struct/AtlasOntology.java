@@ -1,6 +1,5 @@
 package ch.epfl.biop.atlas.struct;
 
-import java.awt.*;
 import java.net.URL;
 
 public interface AtlasOntology {
@@ -15,8 +14,10 @@ public interface AtlasOntology {
 
 	AtlasNode getRoot();
 
-	Color getColor(AtlasNode node);
-
 	AtlasNode getNodeFromId(int id);
+
+	String getNamingProperty();
+
+	void setNamingProperty(String namingProperty);
 
 }

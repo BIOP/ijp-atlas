@@ -3,6 +3,7 @@ package ch.epfl.biop.atlas.struct;
 import bdv.util.RealRandomAccessibleIntervalSource;
 import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
+import ch.epfl.biop.atlas.mouse.allen.ccfv3.AllenOntology;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.imglib2.FinalInterval;
@@ -11,9 +12,12 @@ import net.imglib2.position.FunctionRealRandomAccessible;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.FloatType;
+import org.scijava.util.TreeNode;
 import sc.fiji.bdvpg.sourceandconverter.SourceAndConverterHelper;
 
+import java.awt.*;
 import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,7 +77,7 @@ public class AtlasHelper {
             new GsonBuilder()
                 .setPrettyPrinting()
                 .create()
-                .toJson(ontology, fw);
+                .toJson(new SerializableOntology(ontology), fw);
 
             fw.close();
             return true;
@@ -90,7 +94,8 @@ public class AtlasHelper {
             Gson gson = new Gson();
             try {
                 FileReader fr = new FileReader(ontologyFile.getAbsoluteFile());
-                AtlasOntology ontology = gson.fromJson(new FileReader(ontologyFile.getAbsoluteFile()), AtlasOntology.class);
+                SerializableOntology ontology = gson.fromJson(new FileReader(ontologyFile.getAbsoluteFile()), SerializableOntology.class);
+                ontology.initialize();
                 fr.close();
                 return ontology;
             } catch (FileNotFoundException e) {
@@ -99,8 +104,110 @@ public class AtlasHelper {
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
             }
         } else return null;
+    }
+
+    public static class SerializableOntology implements AtlasOntology{
+        String name;
+        String namingProperty;
+        SerializableAtlasNode root;
+        transient Map<Integer, AtlasNode> idToAtlasNodeMap;
+
+        public SerializableOntology(AtlasOntology ontology) {
+            this.name = ontology.getName();
+            this.root = new SerializableAtlasNode(ontology.getRoot(), null);
+            this.namingProperty = ontology.getNamingProperty();
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public void initialize() throws Exception {
+            idToAtlasNodeMap = AtlasHelper.buildIdToAtlasNodeMap(root);
+        }
+
+        @Override
+        public void setDataSource(URL dataSource) {
+
+        }
+
+        @Override
+        public URL getDataSource() {
+            return null;
+        }
+
+        @Override
+        public AtlasNode getRoot() {
+            return root;
+        }
+
+        @Override
+        public AtlasNode getNodeFromId(int id) {
+            return idToAtlasNodeMap.get(id);
+        }
+
+        @Override
+        public String getNamingProperty() {
+            return namingProperty;
+        }
+
+        @Override
+        public void setNamingProperty(String namingProperty) {
+            this.namingProperty = namingProperty;
+        }
+    }
+
+    public static class SerializableAtlasNode implements AtlasNode {
+
+        final public int id;
+        final public int[] color;
+        final public Map<String, String> data;
+        final public List<SerializableAtlasNode> children;
+
+        transient final public SerializableAtlasNode parent;
+
+        public SerializableAtlasNode(AtlasNode node, SerializableAtlasNode parent) {
+            this.id = node.getId();
+            this.data = node.data();
+            this.parent = parent;
+            this.color = node.getColor();
+            children = new ArrayList<>();
+            node.children().forEach(n -> {
+                children.add(new SerializableAtlasNode(n, this));
+            });
+        }
+
+        @Override
+        public Integer getId() {
+            return id;
+        }
+
+        @Override
+        public int[] getColor() {
+            return color;
+        }
+
+        @Override
+        public Map<String, String> data() {
+            return data;
+        }
+
+        @Override
+        public AtlasNode parent() {
+            return parent;
+        }
+
+        @Override
+        public List<? extends AtlasNode> children() {
+            return children;
+        }
     }
 
 }

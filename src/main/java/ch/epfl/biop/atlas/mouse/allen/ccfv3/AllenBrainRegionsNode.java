@@ -1,15 +1,16 @@
 package ch.epfl.biop.atlas.mouse.allen.ccfv3;
 
 import ch.epfl.biop.atlas.struct.AtlasNode;
-import org.scijava.util.TreeNode;
-
 import java.util.*;
+import java.util.List;
 
 public class AllenBrainRegionsNode implements AtlasNode {
-    final AllenOntologyJson.AllenBrainRegion abr;
-    final AllenBrainRegionsNode parent;
+    transient final AllenOntologyJson.AllenBrainRegion abr;
+    transient final AllenBrainRegionsNode parent;
     final Map<String, String> properties;
-    final List<TreeNode<?>> children;
+    final List<AtlasNode> children;
+
+    final int[] color;
 
     public static String toStringKey = "acronym";
 
@@ -29,6 +30,7 @@ public class AllenBrainRegionsNode implements AtlasNode {
         mutableMap.put("parent_structure_id", Integer.toString(abr.parent_structure_id));
         properties = Collections.unmodifiableMap(mutableMap);
         children = new ArrayList<>(abr.children.size());
+        color = hex2Rgba(abr.color_hex_triplet);
         abr.children.forEach(child_abr -> {
             children.add(new AllenBrainRegionsNode(child_abr, this));
         });
@@ -37,6 +39,22 @@ public class AllenBrainRegionsNode implements AtlasNode {
     @Override
     public Integer getId() {
         return abr.id;
+    }
+    /**
+     * https://stackoverflow.com/questions/4129666/how-to-convert-hex-to-rgb-using-java
+     * @param colorStr e.g. "#FFFFFF"
+     * @return
+     */
+    public static int[] hex2Rgba(String colorStr) {
+        return new int[]{
+                Integer.valueOf( colorStr.substring( 0, 2 ), 16 ),
+                Integer.valueOf( colorStr.substring( 2, 4 ), 16 ),
+                Integer.valueOf( colorStr.substring( 4, 6 ), 16 ),255 };
+    }
+
+    @Override
+    public int[] getColor() {
+        return color;
     }
 
     @Override
@@ -50,13 +68,7 @@ public class AllenBrainRegionsNode implements AtlasNode {
     }
 
     @Override
-    public void setParent(TreeNode<?> parent) {
-        // Done in the constructor
-        throw new UnsupportedOperationException("Cannot set parent, it is already set");
-    }
-
-    @Override
-    public List<TreeNode<?>> children() {
+    public List<AtlasNode> children() {
         return children;
     }
 

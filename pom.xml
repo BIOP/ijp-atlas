@@ -14,7 +14,7 @@
 
 	<groupId>ch.epfl.biop</groupId>
 	<artifactId>atlas</artifactId>
-	<version>0.1.1-SNAPSHOT-local</version>
+	<version>0.1.2-SNAPSHOT</version>
 
 	<name>Atlases</name>
 	<description>Repo containing a standard API for Atlases and some example ones</description>

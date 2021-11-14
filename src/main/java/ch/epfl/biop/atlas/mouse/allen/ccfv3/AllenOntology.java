@@ -21,9 +21,11 @@ public class AllenOntology implements AtlasOntology {
     transient AtlasNode root;
     transient Map<Integer, AtlasNode> idToAtlasNodeMap;
 
+    public String name;
+
     @Override
     public String getName() {
-        return null;
+        return name;
     }
 
     @Override
@@ -59,26 +61,23 @@ public class AllenOntology implements AtlasOntology {
         return root;
     }
 
-    /**
-     * https://stackoverflow.com/questions/4129666/how-to-convert-hex-to-rgb-using-java
-     * @param colorStr e.g. "#FFFFFF"
-     * @return
-     */
-    public static Color hex2Rgb(String colorStr) {
-        return new Color(
-                Integer.valueOf( colorStr.substring( 0, 2 ), 16 ),
-                Integer.valueOf( colorStr.substring( 2, 4 ), 16 ),
-                Integer.valueOf( colorStr.substring( 4, 6 ), 16 ) );
-    }
 
-    @Override
-    public Color getColor(AtlasNode node) {
-        return hex2Rgb(((AllenBrainRegionsNode) node).properties.get("color_hex_triplet"));
-    }
 
     @Override
     public AtlasNode getNodeFromId(int id) {
         return idToAtlasNodeMap.get(id);
+    }
+
+    String namingProperty = "acronym";
+
+    @Override
+    public String getNamingProperty() {
+        return namingProperty;
+    }
+
+    @Override
+    public void setNamingProperty(String namingProperty) {
+        this.namingProperty = namingProperty;
     }
 
 }

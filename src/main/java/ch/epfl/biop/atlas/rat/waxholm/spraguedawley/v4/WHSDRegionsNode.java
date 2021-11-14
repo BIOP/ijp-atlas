@@ -2,16 +2,18 @@ package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4;
 
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.ilfparser.Label;
 import ch.epfl.biop.atlas.struct.AtlasNode;
-import org.scijava.util.TreeNode;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class WHSDRegionsNode implements AtlasNode {
-    final Label label;
-    final WHSDRegionsNode parent;
+    transient final Label label;
+    transient final WHSDRegionsNode parent;
     final Map<String, String> properties;
-    final List<TreeNode<?>> children;
-    final Integer id;
+    final List<AtlasNode> children;
+    transient final Integer id;
+    int[] color;
 
     public static String toStringKey = "abbreviation";
 
@@ -23,6 +25,7 @@ public class WHSDRegionsNode implements AtlasNode {
         mutableMap.put("abbreviation", label.abbreviation);
         mutableMap.put("name", label.name);
         mutableMap.put("color", label.color);
+        color = hex2Rgb(label.color);
         properties = Collections.unmodifiableMap(mutableMap);
         if (label.labels!=null) {
             children = new ArrayList<>(label.labels.length);
@@ -40,6 +43,28 @@ public class WHSDRegionsNode implements AtlasNode {
         return id;
     }
 
+    /**
+     * https://stackoverflow.com/questions/4129666/how-to-convert-hex-to-rgb-using-java
+     * @param colorStr e.g. "#FFFFFF"
+     * @return
+     */
+    public static int[] hex2Rgb(String colorStr) {
+        return new int[]{
+                Integer.valueOf( colorStr.substring( 1, 3 ), 16 ),
+                Integer.valueOf( colorStr.substring( 3, 5 ), 16 ),
+                Integer.valueOf( colorStr.substring( 5, 7 ), 16 ),255 };
+    }
+
+    //@Override
+    //public Color getColor(AtlasNode node) {
+    //    return hex2Rgb(((WHSDRegionsNode) node).properties.get("color"));
+    //}
+
+    @Override
+    public int[] getColor() {
+        return color;
+    }
+
     @Override
     public Map<String, String> data() {
         return properties;
@@ -51,13 +76,7 @@ public class WHSDRegionsNode implements AtlasNode {
     }
 
     @Override
-    public void setParent(TreeNode<?> parent) {
-        // Done in the constructor
-        throw new UnsupportedOperationException("Cannot set parent, it is already set");
-    }
-
-    @Override
-    public List<TreeNode<?>> children() {
+    public List<AtlasNode> children() {
         return children;
     }
 
