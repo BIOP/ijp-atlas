@@ -45,7 +45,7 @@ public class WaxholmSpragueDawleyRatV4Command extends WaxholmSpragueDawleyRatV4A
 	@Parameter(label = "URL path to brain map data, leave empty for downloading and caching", persist = false)
 	String mapUrl = Prefs.get(keyPrefix+"mapUrl","");
 
-	@Parameter(label = "URL path to allen brain ontology data, leave empty for downloading and caching", persist = false)
+	@Parameter(label = "URL path to brain ontology data, leave empty for downloading and caching", persist = false)
     String ontologyUrl = Prefs.get(keyPrefix+"ontologyUrl","");
 
 	@Parameter(type= ItemIO.OUTPUT)

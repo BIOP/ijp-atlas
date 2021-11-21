@@ -67,7 +67,7 @@ public class AllenMap implements AtlasMap {
 		String address =  this.getDataSource().toString();
 		// Hacky Mac HackFace
 		if (address.startsWith("file:")) {
-			address = address.substring(5);
+			address = address.substring(5).replaceAll("%20", " ");
 		}
 
 		SpimDataFromXmlImporter importer = new SpimDataFromXmlImporter(address);

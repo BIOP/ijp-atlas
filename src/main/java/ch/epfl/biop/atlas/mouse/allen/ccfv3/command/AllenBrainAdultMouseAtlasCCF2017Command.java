@@ -48,10 +48,10 @@ public class AllenBrainAdultMouseAtlasCCF2017Command extends AllenAtlas implemen
 	
 	public static String keyPrefix = AllenBrainAdultMouseAtlasCCF2017Command.class.getName()+".";
 
-	@Parameter(label = "URL path to allen brain map data, leave empty for downloading and caching", persist = false)
+	@Parameter(label = "URL path to brain map data, leave empty for downloading and caching", persist = false)
 	String mapUrl = Prefs.get(keyPrefix+"mapUrl","");
 
-	@Parameter(label = "URL path to allen brain ontology data, leave empty for downloading and caching", persist = false)
+	@Parameter(label = "URL path to brain ontology data, leave empty for downloading and caching", persist = false)
     String ontologyUrl = Prefs.get(keyPrefix+"ontologyUrl","");
 
 	@Parameter(type= ItemIO.OUTPUT)
