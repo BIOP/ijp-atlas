@@ -60,8 +60,8 @@ public class WaxholmSpragueDawleyRatV4Command extends WaxholmSpragueDawleyRatV4A
 				ontologyURL = WaxholmSpragueDawleyRatV4Downloader.getOntologyURL();
 			} else
 			{
-				mapURL = new URL(mapUrl);
-				ontologyURL = new URL(ontologyUrl);
+				mapURL = new URL(mapUrl.replaceAll(" ", "%20"));
+				ontologyURL = new URL(ontologyUrl.replaceAll(" ", "%20"));
 			}
 
 			this.initialize(mapURL, ontologyURL);

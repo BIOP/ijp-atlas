@@ -33,6 +33,7 @@ import org.scijava.plugin.Plugin;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,8 +65,8 @@ public class AllenBrainAdultMouseAtlasCCF2017Command extends AllenAtlas implemen
 				mapURL = AllenBrainCCFv3Downloader.getMapUrl();
 				ontologyURL = AllenBrainCCFv3Downloader.getOntologyURL();
 			} else {
-				mapURL = new URL(mapUrl);
-				ontologyURL = new URL(ontologyUrl);
+				mapURL = new URL(mapUrl.replaceAll(" ", "%20"));
+				ontologyURL = new URL(ontologyUrl.replaceAll(" ", "%20"));
 			}
 
 			this.initialize(mapURL, ontologyURL);
@@ -76,7 +77,7 @@ public class AllenBrainAdultMouseAtlasCCF2017Command extends AllenAtlas implemen
 
 			ba=this; // put current object to output -> then processed by plugin
 
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
