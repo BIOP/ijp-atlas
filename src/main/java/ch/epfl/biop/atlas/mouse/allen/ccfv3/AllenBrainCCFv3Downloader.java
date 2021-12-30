@@ -21,10 +21,14 @@
  */
 package ch.epfl.biop.atlas.mouse.allen.ccfv3;
 
+import ch.epfl.biop.atlas.AtlasLocationHelper;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.URL;
 
 public class AllenBrainCCFv3Downloader {
@@ -35,15 +39,13 @@ public class AllenBrainCCFv3Downloader {
     final public static String allen_mouse_brain_CCFv3_xml_v1 = "https://zenodo.org/record/4486659/files/ccf2017-mod65000-border-centered-mm-bc.xml?download=1";
     final public static String allen_mouse_brain_CCFv3_ontology_v1 = "https://zenodo.org/record/4486659/files/1.json?download=1";
 
-    public static File cachedSampleDir = new File(System.getProperty("user.home"),"cached_atlas");
-
     static public URL getMapUrl() {
-        if (!cachedSampleDir.exists()) {
-            cachedSampleDir.mkdir();
+        if (!AtlasLocationHelper.cachedSampleDir.exists()) {
+            AtlasLocationHelper.cachedSampleDir.mkdir();
         }
 
-        File fileXml = new File(cachedSampleDir, "mouse_brain_ccfv3.xml");
-        File fileHdf5 = new File(cachedSampleDir, "ccf2017-mod65000-border-centered-mm-bc.h5");
+        File fileXml = new File(AtlasLocationHelper.cachedSampleDir, "mouse_brain_ccfv3.xml");
+        File fileHdf5 = new File(AtlasLocationHelper.cachedSampleDir, "ccf2017-mod65000-border-centered-mm-bc.h5");
 
         boolean dlH5 = true;
         boolean dlXml = true;
@@ -65,8 +67,8 @@ public class AllenBrainCCFv3Downloader {
         URL returned = null;
 
         try {
-            if (dlXml) DownloadProgressBar.urlToFile(new URL(allen_mouse_brain_CCFv3_xml_v1), new File(cachedSampleDir, "mouse_brain_ccfv3.xml"), "Downloading mouse_brain_ccfv3.xml", -1);
-            if (dlH5) DownloadProgressBar.urlToFile(new URL(allen_mouse_brain_CCFv3_hdf5_v1), new File(cachedSampleDir, "ccf2017-mod65000-border-centered-mm-bc.h5"), "Downloading mouse_brain_ccfv3.h5", 3_089_344_351L);
+            if (dlXml) DownloadProgressBar.urlToFile(new URL(allen_mouse_brain_CCFv3_xml_v1), new File(AtlasLocationHelper.cachedSampleDir, "mouse_brain_ccfv3.xml"), "Downloading mouse_brain_ccfv3.xml", -1);
+            if (dlH5) DownloadProgressBar.urlToFile(new URL(allen_mouse_brain_CCFv3_hdf5_v1), new File(AtlasLocationHelper.cachedSampleDir, "ccf2017-mod65000-border-centered-mm-bc.h5"), "Downloading mouse_brain_ccfv3.h5", 3_089_344_351L);
 
             returned = fileXml.toURI().toURL();
         } catch (Exception e) {
@@ -77,7 +79,7 @@ public class AllenBrainCCFv3Downloader {
     }
 
     public static URL getOntologyURL() {
-        File ontologyFile = new File(cachedSampleDir, "1.json");
+        File ontologyFile = new File(AtlasLocationHelper.cachedSampleDir, "1.json");
         boolean dlOntology = true;
         if (ontologyFile.exists()) {
             dlOntology = false;
@@ -86,7 +88,7 @@ public class AllenBrainCCFv3Downloader {
         URL returned = null;
 
         try {
-            if (dlOntology) DownloadProgressBar.urlToFile(new URL(allen_mouse_brain_CCFv3_ontology_v1), new File(cachedSampleDir, "1.json"), "Downloading ontology", -1);
+            if (dlOntology) DownloadProgressBar.urlToFile(new URL(allen_mouse_brain_CCFv3_ontology_v1), new File(AtlasLocationHelper.cachedSampleDir, "1.json"), "Downloading ontology", -1);
 
             returned = ontologyFile.toURI().toURL();
         } catch (Exception e) {
