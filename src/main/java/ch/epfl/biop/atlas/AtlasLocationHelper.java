@@ -39,7 +39,7 @@ public class AtlasLocationHelper {
                 String targetFileStr = IOUtils.toString(fisTargetFile, "UTF-8");
                 File dir = new File(targetFileStr);
                 if (dir.exists()) {
-                    return f;
+                    return dir;
                 } else {
                     // Attempt to make it
                     boolean result = dir.mkdir();
