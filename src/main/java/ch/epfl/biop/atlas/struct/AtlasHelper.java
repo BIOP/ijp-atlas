@@ -80,10 +80,10 @@ public class AtlasHelper {
             t.set(l.getFloatPosition(axis));
         };
 
-        FunctionRealRandomAccessible coordSource = new FunctionRealRandomAccessible(3,
+        FunctionRealRandomAccessible<FloatType> coordSource = new FunctionRealRandomAccessible(3,
                 coordIndicator,	FloatType::new);
 
-        final Source<UnsignedShortType> s = new RealRandomAccessibleIntervalSource<>( coordSource,
+        final Source<FloatType> s = new RealRandomAccessibleIntervalSource<>( coordSource,
                 FinalInterval.createMinMax( 0, 0, 0, 1320, 800, 1140),
                 new FloatType(), new AffineTransform3D(), name );
 

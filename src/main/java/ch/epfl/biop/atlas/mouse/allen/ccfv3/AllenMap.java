@@ -72,7 +72,7 @@ public class AllenMap implements AtlasMap {
 
 		SpimDataFromXmlImporter importer = new SpimDataFromXmlImporter(address);
 
-		final List<SourceAndConverter> sacs = SourceAndConverterServices
+		final List<SourceAndConverter<?>> sacs = SourceAndConverterServices
 			.getSourceAndConverterService()
 			.getSourceAndConverterFromSpimdata(importer.get());
 
