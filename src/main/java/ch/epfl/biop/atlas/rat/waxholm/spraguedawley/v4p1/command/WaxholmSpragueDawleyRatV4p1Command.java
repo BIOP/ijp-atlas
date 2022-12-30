@@ -23,6 +23,7 @@ package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p1.command;
 
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4.WaxholmSpragueDawleyRatV4Atlas;
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4.WaxholmSpragueDawleyRatV4Downloader;
+import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p1.WaxholmSpragueDawleyRatV4p1Atlas;
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p1.WaxholmSpragueDawleyRatV4p1Downloader;
 import ch.epfl.biop.atlas.struct.Atlas;
 import ij.Prefs;
@@ -35,7 +36,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 @Plugin(type = Command.class, menuPath = "Plugins>BIOP>Atlas>Rat (Waxholm Sprague Dawley V4p1)")
-public class WaxholmSpragueDawleyRatV4p1Command extends WaxholmSpragueDawleyRatV4Atlas implements Command {
+public class WaxholmSpragueDawleyRatV4p1Command extends WaxholmSpragueDawleyRatV4p1Atlas implements Command {
 
 	public String toString() {
 		return "Rat - Waxholm Sprague Dawley V4p1";
