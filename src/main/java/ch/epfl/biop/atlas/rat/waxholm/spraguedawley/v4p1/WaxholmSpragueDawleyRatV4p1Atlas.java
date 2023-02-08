@@ -77,9 +77,10 @@ public class WaxholmSpragueDawleyRatV4p1Atlas implements Atlas {
         return "https://www.nitrc.org/projects/whs-sd-atlas";
     }
 
+    final public static String atlasName = "Rat - Waxholm Sprague Dawley V4p1";
     @Override
     public String getName() {
-        return "Waxholm Sprague-Dawley Rat Atlas V4p1";
+        return atlasName;
     }
 
     @Override

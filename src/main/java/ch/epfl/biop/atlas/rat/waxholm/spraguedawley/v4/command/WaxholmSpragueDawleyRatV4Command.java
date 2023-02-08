@@ -34,7 +34,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 @Deprecated
-@Plugin(type = Command.class, menuPath = "Plugins>BIOP>Atlas>Rat (Waxholm Sprague Dawley V4)")
+@Plugin(type = Command.class)//, menuPath = "Plugins>BIOP>Atlas>Rat (Waxholm Sprague Dawley V4)")
 public class WaxholmSpragueDawleyRatV4Command extends WaxholmSpragueDawleyRatV4Atlas implements Command {
 
 	public String toString() {

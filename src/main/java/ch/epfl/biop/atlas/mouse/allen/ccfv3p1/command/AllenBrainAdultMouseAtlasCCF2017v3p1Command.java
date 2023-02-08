@@ -38,7 +38,7 @@ import java.util.List;
 
 // Take ply files from : http://download.alleninstitute.org/informatics-archive/current-release/mouse_ccf/annotation/ccf_2017/structure_meshes/ply/
 
-@Plugin(type = Command.class, menuPath = "Plugins>BIOP>Atlas>Allen Brain Adult Mouse Brain CCF 2017 (v3.1)")
+@Plugin(type = Command.class)//, menuPath = "Plugins>BIOP>Atlas>Allen Brain Adult Mouse Brain CCF 2017 (v3.1)")
 public class AllenBrainAdultMouseAtlasCCF2017v3p1Command extends AllenAtlas implements Command {
 
 	public String toString() {
@@ -47,10 +47,10 @@ public class AllenBrainAdultMouseAtlasCCF2017v3p1Command extends AllenAtlas impl
 	
 	public static String keyPrefix = AllenBrainAdultMouseAtlasCCF2017v3p1Command.class.getName()+".";
 
-	@Parameter(label = "URL path to brain map data, leave empty for downloading and caching", persist = false)
+	//@Parameter(label = "URL path to brain map data, leave empty for downloading and caching", persist = false)
 	String mapUrl = Prefs.get(keyPrefix+"mapUrl","");
 
-	@Parameter(label = "URL path to brain ontology data, leave empty for downloading and caching", persist = false)
+	//@Parameter(label = "URL path to brain ontology data, leave empty for downloading and caching", persist = false)
     String ontologyUrl = Prefs.get(keyPrefix+"ontologyUrl","");
 
 	@Parameter(type= ItemIO.OUTPUT)
@@ -92,8 +92,10 @@ public class AllenBrainAdultMouseAtlasCCF2017v3p1Command extends AllenAtlas impl
 		return "https://community.brain-map.org/t/allen-mouse-ccf-accessing-and-using-related-data-and-tools/359";
 	}
 
+	final public static String atlasName = "Adult Mouse Brain - Allen Brain Atlas V3p1";
+
 	@Override
 	public String getName() {
-		return "Adult Mouse Brain - Allen Brain Atlas V3p1";
+		return atlasName;
 	}
 }

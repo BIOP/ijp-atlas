@@ -38,12 +38,12 @@ public class WaxholmSpragueDawleyRatV4Downloader {
     final public static String wh_sd_rat_v4_ontology = "https://zenodo.org/record/5644162/files/WHS_SD_rat_atlas_v4_labels.ilf?download=1";
 
     static public URL getMapUrl() {
-        if (!AtlasLocationHelper.cachedSampleDir.exists()) {
-            AtlasLocationHelper.cachedSampleDir.mkdir();
+        if (!AtlasLocationHelper.getAtlasCacheDir().exists()) {
+            AtlasLocationHelper.getAtlasCacheDir().mkdir();
         }
 
-        File fileXml = new File(AtlasLocationHelper.cachedSampleDir, "WHS_SD_rat_atlas_v4.xml");
-        File fileHdf5 = new File(AtlasLocationHelper.cachedSampleDir, "WHS_SD_rat_atlas_v4.h5");
+        File fileXml = new File(AtlasLocationHelper.getAtlasCacheDir(), "WHS_SD_rat_atlas_v4.xml");
+        File fileHdf5 = new File(AtlasLocationHelper.getAtlasCacheDir(), "WHS_SD_rat_atlas_v4.h5");
 
         boolean dlH5 = true;
         boolean dlXml = true;
@@ -65,8 +65,8 @@ public class WaxholmSpragueDawleyRatV4Downloader {
         URL returned = null;
 
         try {
-            if (dlXml) DownloadProgressBar.urlToFile(new URL(wh_sd_rat_v4_xml), new File(AtlasLocationHelper.cachedSampleDir, "WHS_SD_rat_atlas_v4.xml"), "Downloading WHS_SD_rat_atlas_v4.xml", -1);
-            if (dlH5) DownloadProgressBar.urlToFile(new URL(wh_sd_rat_v4_hdf5), new File(AtlasLocationHelper.cachedSampleDir, "WHS_SD_rat_atlas_v4.h5"), "Downloading WHS_SD_rat_atlas_v4.h5", 499_413_218L);
+            if (dlXml) DownloadProgressBar.urlToFile(new URL(wh_sd_rat_v4_xml), new File(AtlasLocationHelper.getAtlasCacheDir(), "WHS_SD_rat_atlas_v4.xml"), "Downloading WHS_SD_rat_atlas_v4.xml", -1);
+            if (dlH5) DownloadProgressBar.urlToFile(new URL(wh_sd_rat_v4_hdf5), new File(AtlasLocationHelper.getAtlasCacheDir(), "WHS_SD_rat_atlas_v4.h5"), "Downloading WHS_SD_rat_atlas_v4.h5", 499_413_218L);
 
             returned = fileXml.toURI().toURL();
         } catch (Exception e) {
@@ -77,7 +77,7 @@ public class WaxholmSpragueDawleyRatV4Downloader {
     }
 
     public static URL getOntologyURL() {
-        File ontologyFile = new File(AtlasLocationHelper.cachedSampleDir, "WHS_SD_rat_atlas_v4_labels.ilf");
+        File ontologyFile = new File(AtlasLocationHelper.getAtlasCacheDir(), "WHS_SD_rat_atlas_v4_labels.ilf");
         boolean dlOntology = true;
         if (ontologyFile.exists()) {
             dlOntology = false;
@@ -86,7 +86,7 @@ public class WaxholmSpragueDawleyRatV4Downloader {
         URL returned = null;
 
         try {
-            if (dlOntology) DownloadProgressBar.urlToFile(new URL(wh_sd_rat_v4_ontology), new File(AtlasLocationHelper.cachedSampleDir, "WHS_SD_rat_atlas_v4_labels.ilf"), "Downloading ontology", -1);
+            if (dlOntology) DownloadProgressBar.urlToFile(new URL(wh_sd_rat_v4_ontology), new File(AtlasLocationHelper.getAtlasCacheDir(), "WHS_SD_rat_atlas_v4_labels.ilf"), "Downloading ontology", -1);
 
             returned = ontologyFile.toURI().toURL();
         } catch (Exception e) {

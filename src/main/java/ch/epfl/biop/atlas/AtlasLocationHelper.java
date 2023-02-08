@@ -28,9 +28,16 @@ import java.io.FileInputStream;
 
 public class AtlasLocationHelper {
 
-    public static File cachedSampleDir = getAtlasCacheDir();//
+    //public static File cachedSampleDir = getAtlasCacheDir();//
 
-    private static File getAtlasCacheDir() {
+    public static File defaultCacheDir = null;
+
+    public static File getAtlasCacheDir() {
+
+        if (defaultCacheDir!=null) {
+            return defaultCacheDir;
+        }
+
         File f = new File("./plugins/BIOP/ABBA_Atlas_folder.txt");
         if (f.exists()) {
             FileInputStream fisTargetFile;
