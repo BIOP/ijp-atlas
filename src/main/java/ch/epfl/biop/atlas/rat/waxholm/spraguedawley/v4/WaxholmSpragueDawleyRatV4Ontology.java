@@ -29,7 +29,6 @@ import ch.epfl.biop.atlas.struct.AtlasOntology;
 import javax.xml.bind.JAXBContext;
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.ilfparser.Label;
 
-import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
