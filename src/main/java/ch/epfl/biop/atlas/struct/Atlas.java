@@ -36,7 +36,7 @@ public interface Atlas {
     //--------------------------- Ontology
     AtlasOntology getOntology();
 
-    void initialize(URL mapURL, URL ontologyURL);
+    void initialize(URL mapURL, URL ontologyURL) throws Exception;
 
     List<String> getDOIs();
 

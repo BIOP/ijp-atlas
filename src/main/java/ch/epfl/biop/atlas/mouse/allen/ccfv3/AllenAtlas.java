@@ -34,18 +34,14 @@ abstract public class AllenAtlas implements Atlas {
 	AllenMap map;
 
 	@Override
-	public void initialize(URL mapURL, URL ontologyURL) {
+	public void initialize(URL mapURL, URL ontologyURL) throws Exception{
 		ontology = new AllenOntology();
 		ontology.setDataSource(ontologyURL);
 
-		try {
-			ontology.initialize();
-			map = new AllenMap();
-			map.setDataSource(mapURL);
-			map.initialize(this.toString());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		ontology.initialize();
+		map = new AllenMap();
+		map.setDataSource(mapURL);
+		map.initialize(this.toString());
 	}
 
 	@Override

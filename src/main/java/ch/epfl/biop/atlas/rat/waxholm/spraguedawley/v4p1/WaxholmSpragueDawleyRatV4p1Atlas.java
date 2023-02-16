@@ -47,18 +47,14 @@ public class WaxholmSpragueDawleyRatV4p1Atlas implements Atlas {
     }
 
     @Override
-    public void initialize(URL mapURL, URL ontologyURL) {
+    public void initialize(URL mapURL, URL ontologyURL) throws Exception{
         ontology = new WaxholmSpragueDawleyRatV4Ontology();
         ontology.setDataSource(ontologyURL);
 
-        try {
-            ontology.initialize();
-            map = new WaxholmSpragueDawleyRatV4p1Map();
-            map.setDataSource(mapURL);
-            map.initialize(this.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        ontology.initialize();
+        map = new WaxholmSpragueDawleyRatV4p1Map();
+        map.setDataSource(mapURL);
+        map.initialize(this.toString());
     }
 
     //https://www.nitrc.org/citation/?group_id=1081

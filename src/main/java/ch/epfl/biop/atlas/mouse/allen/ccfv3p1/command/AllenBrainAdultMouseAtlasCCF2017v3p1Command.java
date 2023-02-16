@@ -67,8 +67,19 @@ public class AllenBrainAdultMouseAtlasCCF2017v3p1Command extends AllenAtlas impl
 				mapURL = new URL(mapUrl.replaceAll(" ", "%20"));
 				ontologyURL = new URL(ontologyUrl.replaceAll(" ", "%20"));
 			}
-
-			this.initialize(mapURL, ontologyURL);
+			try {
+				this.initialize(mapURL, ontologyURL);
+			} catch (Exception e) {
+				System.err.println("Could not initialize the atlas : "+e.getMessage());
+				System.err.println("Re-downloading it.");
+				mapURL = AllenBrainCCFv3p1Downloader.getMapUrl();
+				ontologyURL = AllenBrainCCFv3p1Downloader.getOntologyURL();
+				try {
+					this.initialize(mapURL, ontologyURL);
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			}
 			((AllenOntology)this.getOntology()).name = getName();
 
 	        Prefs.set(keyPrefix + "mapUrl", mapURL.toString());

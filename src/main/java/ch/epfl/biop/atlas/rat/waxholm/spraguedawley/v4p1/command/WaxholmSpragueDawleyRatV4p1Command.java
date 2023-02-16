@@ -21,6 +21,7 @@
  */
 package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p1.command;
 
+import ch.epfl.biop.atlas.mouse.allen.ccfv3p1.AllenBrainCCFv3p1Downloader;
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p1.WaxholmSpragueDawleyRatV4p1Atlas;
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p1.WaxholmSpragueDawleyRatV4p1Downloader;
 import ch.epfl.biop.atlas.struct.Atlas;
@@ -65,8 +66,19 @@ public class WaxholmSpragueDawleyRatV4p1Command extends WaxholmSpragueDawleyRatV
 				mapURL = new URL(mapUrl.replaceAll(" ", "%20"));
 				ontologyURL = new URL(ontologyUrl.replaceAll(" ", "%20"));
 			}
-
-			this.initialize(mapURL, ontologyURL);
+			try {
+				this.initialize(mapURL, ontologyURL);
+			} catch (Exception e) {
+				System.err.println("Could not initialize the atlas : "+e.getMessage());
+				System.err.println("Re-downloading it : "+e.getMessage());
+				mapURL = WaxholmSpragueDawleyRatV4p1Downloader.getMapUrl();
+				ontologyURL = WaxholmSpragueDawleyRatV4p1Downloader.getOntologyURL();
+				try {
+					this.initialize(mapURL, ontologyURL);
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			}
 
 	        Prefs.set(keyPrefix + "mapUrl", mapURL.toString());
 	        Prefs.set(keyPrefix + "ontologyUrl", ontologyURL.toString());
