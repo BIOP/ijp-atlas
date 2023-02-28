@@ -21,7 +21,6 @@
  */
 package ch.epfl.biop.atlas.scijava;
 
-import bdv.util.BdvHandle;
 import ch.epfl.biop.atlas.struct.Atlas;
 import net.imagej.display.process.SingleInputPreprocessor;
 import org.scijava.Priority;
@@ -30,8 +29,6 @@ import org.scijava.module.ModuleService;
 import org.scijava.module.process.PreprocessorPlugin;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
-import sc.fiji.bdvpg.scijava.services.SourceAndConverterBdvDisplayService;
-
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -61,11 +58,9 @@ public class AtlasPreprocessor extends SingleInputPreprocessor<Atlas> {
         Atlas a = null;
         try {
             a = (Atlas) ms.run(commandService.getCommand(AtlasChooserCommand.class), true).get().getOutput("atlas");
-            //a = (Atlas) commandService.run(AtlasChooserCommand.class, true).get().getOutput("atlas");
         } catch (InterruptedException|ExecutionException e) {
             e.printStackTrace();
         }
-        System.out.println("a:"+a.getName());
         return a;
     }
 

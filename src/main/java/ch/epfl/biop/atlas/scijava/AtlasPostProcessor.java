@@ -29,6 +29,7 @@ import org.scijava.module.process.PostprocessorPlugin;
 import org.scijava.object.ObjectService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import sc.fiji.bdvpg.scijava.services.SourceAndConverterService;
 
 /**
  * Enables Atlas to be added to the object service when declared as an output
@@ -40,6 +41,9 @@ public class AtlasPostProcessor extends AbstractPostprocessorPlugin {
 
 	@Parameter
 	ObjectService os;
+
+	@Parameter
+	SourceAndConverterService source_service;
 	
 	@Override
 	public void process(Module module) {
@@ -49,11 +53,12 @@ public class AtlasPostProcessor extends AbstractPostprocessorPlugin {
 				final String name = output.getName();
 				Atlas ba = (Atlas) module.getOutput(name);
 				if (!os.getObjects(Atlas.class).contains(ba)) { // Avoids double addition // TODO : avoid putting multiple times the same atlas
-					System.out.println("REGISTER");
 					os.addObject(ba);
+					ba.getMap().getStructuralImages().forEach((key,source) -> {
+						source_service.register(source);
+					});
+					source_service.register(ba.getMap().getLabelImage());
 				}
-				//module.resolveOutput(name);
-				//ba.runOnClose(() -> os.removeObject(ba)); // removes the object when the atlas window is closed
 			}
 		});
 	}
