@@ -94,6 +94,7 @@ public class BrainGlobeHelper {
             color = new int[]{entry.rgb_triplet[0],entry.rgb_triplet[1],entry.rgb_triplet[2],255};//entry.rgb_triplet.clone();
             data.put("name", entry.name);
             data.put("acronym", entry.acronym);
+            data.put("id", Integer.toString(entry.id));
 
             idToNode.put(id,this);
             remainingIds.remove(id);
