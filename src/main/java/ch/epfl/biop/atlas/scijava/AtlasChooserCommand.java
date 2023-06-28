@@ -22,8 +22,8 @@
 package ch.epfl.biop.atlas.scijava;
 
 import ch.epfl.biop.atlas.mouse.allen.ccfv3p1.command.AllenBrainAdultMouseAtlasCCF2017v3p1Command;
-import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p1.WaxholmSpragueDawleyRatV4p1Atlas;
-import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p1.command.WaxholmSpragueDawleyRatV4p1Command;
+import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2.WaxholmSpragueDawleyRatV4p2Atlas;
+import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2.command.WaxholmSpragueDawleyRatV4p2Command;
 import ch.epfl.biop.atlas.struct.Atlas;
 import org.scijava.ItemIO;
 import org.scijava.command.CommandService;
@@ -68,8 +68,8 @@ public class AtlasChooserCommand extends DynamicCommand {
 
         try {
             switch (choice) {
-                case WaxholmSpragueDawleyRatV4p1Atlas.atlasName:
-                    atlas = (Atlas) cmd.run(WaxholmSpragueDawleyRatV4p1Command.class, true).get().getOutput("ba");
+                case WaxholmSpragueDawleyRatV4p2Atlas.atlasName:
+                    atlas = (Atlas) cmd.run(WaxholmSpragueDawleyRatV4p2Command.class, true).get().getOutput("ba");
                     break;
                 case AllenBrainAdultMouseAtlasCCF2017v3p1Command.atlasName:
                     atlas = (Atlas) cmd.run(AllenBrainAdultMouseAtlasCCF2017v3p1Command.class, true).get().getOutput("ba");
@@ -105,7 +105,7 @@ public class AtlasChooserCommand extends DynamicCommand {
             choices.add(entry.getKey());
         }
         Collections.sort(choices);
-        choices.add(0, WaxholmSpragueDawleyRatV4p1Atlas.atlasName);
+        choices.add(0, WaxholmSpragueDawleyRatV4p2Atlas.atlasName);
         choices.add(0, AllenBrainAdultMouseAtlasCCF2017v3p1Command.atlasName);
         final MutableModuleItem<String> input = getInfo().getMutableInput("choice",
                 String.class);

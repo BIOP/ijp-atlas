@@ -19,7 +19,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p1;
+package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2;
 
 import bdv.util.RealRandomAccessibleIntervalSource;
 import bdv.viewer.Source;
@@ -44,7 +44,7 @@ import java.util.function.BiConsumer;
 
 import static ch.epfl.biop.atlas.struct.AtlasHelper.getCoordinateSac;
 
-public class WaxholmSpragueDawleyRatV4p1Map implements AtlasMap {
+public class WaxholmSpragueDawleyRatV4p2Map implements AtlasMap {
 
     URL dataSource;
 
