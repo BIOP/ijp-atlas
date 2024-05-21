@@ -69,14 +69,18 @@ public class AtlasChooserCommand extends DynamicCommand {
         try {
             switch (choice) {
                 case WaxholmSpragueDawleyRatV4p2Atlas.atlasName:
+                    //System.out.println("RAT (Java)");
                     atlas = (Atlas) cmd.run(WaxholmSpragueDawleyRatV4p2Command.class, true).get().getOutput("ba");
                     break;
                 case AllenBrainAdultMouseAtlasCCF2017v3p1Command.atlasName:
+                    //System.out.println("MOUSE (Java)");
                     atlas = (Atlas) cmd.run(AllenBrainAdultMouseAtlasCCF2017v3p1Command.class, true).get().getOutput("ba");
                     break;
                 default:
                     if (extraAtlases.containsKey(choice)) {
+                        //System.out.println(choice+" (Python)");
                         atlas = extraAtlases.get(choice).get();
+                        //System.out.println("Atlas null ? "+(atlas==null));
                     } else {
                         System.err.println("Unrecognized atlas named " + choice);
                     }

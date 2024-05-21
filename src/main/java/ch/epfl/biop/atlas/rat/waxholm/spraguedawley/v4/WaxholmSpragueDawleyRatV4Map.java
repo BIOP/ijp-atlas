@@ -50,9 +50,9 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
 
     public String name;
 
-    final Map<String,SourceAndConverter> atlasSources = new HashMap<>();
+    final Map<String,SourceAndConverter<?>> atlasSources = new HashMap<>();
 
-    SourceAndConverter labelSource;
+    SourceAndConverter<?> labelSource;
 
     @Override
     public void setDataSource(URL dataSource) {
@@ -94,14 +94,14 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
             }
         };
 
-        FunctionRealRandomAccessible leftRightSource = new FunctionRealRandomAccessible(3,
+        FunctionRealRandomAccessible<UnsignedShortType> leftRightSource = new FunctionRealRandomAccessible<>(3,
                 leftRightIndicator,	UnsignedShortType::new);
 
         final Source< UnsignedShortType > s = new RealRandomAccessibleIntervalSource<>( leftRightSource,
                 FinalInterval.createMinMax( 0, 0, 0, 1000, 1000, 0),
                 new UnsignedShortType(), new AffineTransform3D(), "Left_Right" );
 
-        SourceAndConverter leftRight = SourceAndConverterHelper.createSourceAndConverter(s);
+        SourceAndConverter<?> leftRight = SourceAndConverterHelper.createSourceAndConverter(s);
 
         atlasSources.put("Left Right", leftRight);
 
@@ -121,7 +121,7 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
     }
 
     @Override
-    public Map<String,SourceAndConverter> getStructuralImages() {
+    public Map<String,SourceAndConverter<?>> getStructuralImages() {
         return atlasSources;
     }
 
@@ -138,7 +138,7 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
     }
 
     @Override
-    public SourceAndConverter getLabelImage() {
+    public SourceAndConverter<?> getLabelImage() {
         return labelSource;
     }
 

@@ -56,9 +56,9 @@ public class AllenMap implements AtlasMap {
 	final static private int AraSetupId = 2;
 	final static private int LabelSetupId = 3;
 
-	final Map<String,SourceAndConverter> atlasSources = new HashMap<>();
+	final Map<String,SourceAndConverter<?>> atlasSources = new HashMap<>();
 
-	SourceAndConverter labelSource;
+	SourceAndConverter<?> labelSource;
 
 	@Override
 	public void initialize(String atlasName) {
@@ -68,6 +68,11 @@ public class AllenMap implements AtlasMap {
 		// Hacky Mac HackFace
 		if (address.startsWith("file:")) {
 			address = address.substring(5).replaceAll("%20", " ");
+		}
+
+		// Fix a stupid issue... For some reason the path may contain an extra slash in windows
+		if (System.getProperty("os.name").startsWith("Windows") && address.startsWith("/")) {
+			address = address.substring(1);
 		}
 
 		SpimDataFromXmlImporter importer = new SpimDataFromXmlImporter(address);
@@ -89,14 +94,14 @@ public class AllenMap implements AtlasMap {
 			}
 		};
 
-		FunctionRealRandomAccessible leftRightSource = new FunctionRealRandomAccessible(3,
+		FunctionRealRandomAccessible<UnsignedShortType> leftRightSource = new FunctionRealRandomAccessible<>(3,
 				leftRightIndicator,	UnsignedShortType::new);
 
 		final Source< UnsignedShortType > s = new RealRandomAccessibleIntervalSource<>( leftRightSource,
 				FinalInterval.createMinMax( 0, 0, 0, 1000, 1000, 0),
 				new UnsignedShortType(), new AffineTransform3D(), "Left_Right" );
 
-		SourceAndConverter leftRight = SourceAndConverterHelper.createSourceAndConverter(s);
+		SourceAndConverter<?> leftRight = SourceAndConverterHelper.createSourceAndConverter(s);
 
 		atlasSources.put("Left Right", leftRight);
 
@@ -123,7 +128,7 @@ public class AllenMap implements AtlasMap {
 	}
 
 	@Override
-	public Map<String,SourceAndConverter> getStructuralImages() {
+	public Map<String,SourceAndConverter<?>> getStructuralImages() {
 		return atlasSources;
 	}
 
@@ -141,7 +146,7 @@ public class AllenMap implements AtlasMap {
 	}
 
 	@Override
-	public SourceAndConverter getLabelImage() {
+	public SourceAndConverter<?> getLabelImage() {
 		return labelSource;
 	}
 

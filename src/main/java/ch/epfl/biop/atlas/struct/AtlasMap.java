@@ -30,15 +30,13 @@ import java.util.Map;
 
 /**
  * Interface to define an AtlasMap
- *
+ * <br>
  * Pairs with AtlasOntology
- *
+ * <br>
  * The Atlas Map contains :
  * - 3D images among which there are:
  *     - structural images, which are different modalities acquired for an atlas (fluorescence, brightfield)
  *     - a single Label Image
- *
- *
  */
 public interface AtlasMap {
 
@@ -50,21 +48,21 @@ public interface AtlasMap {
 
 	/**
 	 * Triggers the initialisation of the Atlas
-	 * @param atlasName
+	 * @param atlasName name to give to the atlas
 	 */
 	void initialize(String atlasName);
 
 	/**
 	 * For convenience
-	 * @return
+	 * @return the original URL of where the data was read from
 	 */
 	URL getDataSource();
 
-	Map<String,SourceAndConverter> getStructuralImages();
+	Map<String,SourceAndConverter<?>> getStructuralImages();
 
 	List<String> getImagesKeys();
 
-	SourceAndConverter getLabelImage();
+	SourceAndConverter<?> getLabelImage();
 
 	Double getAtlasPrecisionInMillimeter();
 
