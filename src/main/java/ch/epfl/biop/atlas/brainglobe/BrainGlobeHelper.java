@@ -48,7 +48,7 @@ public class BrainGlobeHelper {
             }
 
             // Pff... what an annoying way to construct a tree structure
-            while (remainingIds.size()>0) {
+            while (!remainingIds.isEmpty()) {
                 Integer currentId = remainingIds.stream().findAny().get();
                 BrainGlobeNode node = new BrainGlobeNode(currentId,
                         idToEntry,

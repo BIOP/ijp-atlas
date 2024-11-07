@@ -90,6 +90,36 @@ public class AtlasHelper {
         return SourceAndConverterHelper.createSourceAndConverter(s);
     }
 
+    public static SourceAndConverter<FloatType> getCoordinateSacInvOffset(final int axis, final float offset, String name) {
+        BiConsumer<RealLocalizable, FloatType > coordIndicator = (l, t ) -> {
+            t.set(offset-l.getFloatPosition(axis));
+        };
+
+        FunctionRealRandomAccessible<FloatType> coordSource = new FunctionRealRandomAccessible(3,
+                coordIndicator,	FloatType::new);
+
+        final Source<FloatType> s = new RealRandomAccessibleIntervalSource<>( coordSource,
+                FinalInterval.createMinMax( 0, 0, 0, 1320, 800, 1140),
+                new FloatType(), new AffineTransform3D(), name );
+
+        return SourceAndConverterHelper.createSourceAndConverter(s);
+    }
+
+    public static SourceAndConverter<FloatType> getCoordinateSacOffset(final int axis, final float offset, String name) {
+        BiConsumer<RealLocalizable, FloatType > coordIndicator = (l, t ) -> {
+            t.set(offset+l.getFloatPosition(axis));
+        };
+
+        FunctionRealRandomAccessible<FloatType> coordSource = new FunctionRealRandomAccessible(3,
+                coordIndicator,	FloatType::new);
+
+        final Source<FloatType> s = new RealRandomAccessibleIntervalSource<>( coordSource,
+                FinalInterval.createMinMax( 0, 0, 0, 1320, 800, 1140),
+                new FloatType(), new AffineTransform3D(), name );
+
+        return SourceAndConverterHelper.createSourceAndConverter(s);
+    }
+
     public static boolean saveOntologyToJsonFile(AtlasOntology ontology, String path) {
         try {
 

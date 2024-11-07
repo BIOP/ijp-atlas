@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>37.0.0</version>
+		<version>38.0.1</version>
 		<relativePath />
 	</parent>
 
@@ -106,30 +106,11 @@
 		<package-name>ch.epfl.biop.atlas</package-name>
 		<license.licenseName>gpl_v3</license.licenseName>
 		<license.copyrightOwners>EPFL</license.copyrightOwners>
-		<bigdataviewer-playground.version>0.10.1</bigdataviewer-playground.version>
+		<bigdataviewer-playground.version>0.10.4</bigdataviewer-playground.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
-
-		<n5.version>3.1.1</n5.version>
-		<n5-hdf5.version>2.1.0</n5-hdf5.version>
-		<n5-zarr.version>1.2.0</n5-zarr.version>
-		<n5-ij.version>4.0.1</n5-ij.version>
-		<n5-universe.version>1.3.1</n5-universe.version>
-		<n5-zstandard.version>1.0.2</n5-zstandard.version>
-		<org.janelia.n5-zstandard.version>${n5-zstandard.version}</org.janelia.n5-zstandard.version>
-
-		<bigwarp.version>9.1.2</bigwarp.version>
-		<bigwarp_fiji.version>9.1.2</bigwarp_fiji.version>
-		<bigdataviewer-core.version>10.4.13</bigdataviewer-core.version>
-		<bigdataviewer-vistools.version>1.0.0-beta-34</bigdataviewer-vistools.version>
-		<imglib2-realtransform.version>4.0.2</imglib2-realtransform.version>
-
-		<ejml-core.version>0.41</ejml-core.version>
-		<ejml-ddense.version>0.41</ejml-ddense.version>
-
-		<jitk-tps.version>3.0.4</jitk-tps.version>
 	</properties>
 
 	<repositories>

@@ -19,10 +19,12 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+import loci.common.DebugTools;
 import net.imagej.ImageJ;
 
 public class SimpleIJLaunch {
     public static void main(String[] args) {
+        DebugTools.setRootLevel("INFO");
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
     }
