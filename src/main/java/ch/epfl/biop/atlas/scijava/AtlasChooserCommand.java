@@ -22,8 +22,10 @@
 package ch.epfl.biop.atlas.scijava;
 
 import ch.epfl.biop.atlas.mouse.allen.ccfv3p1.command.AllenBrainAdultMouseAtlasCCF2017v3p1Command;
+import ch.epfl.biop.atlas.mouse.allen.ccfv3p1asr.command.AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand;
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2.WaxholmSpragueDawleyRatV4p2Atlas;
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2.command.WaxholmSpragueDawleyRatV4p2Command;
+import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2asr.command.WaxholmSpragueDawleyRatV4p2ASRCommand;
 import ch.epfl.biop.atlas.struct.Atlas;
 import org.scijava.ItemIO;
 import org.scijava.command.CommandService;
@@ -72,6 +74,12 @@ public class AtlasChooserCommand extends DynamicCommand {
                 case AllenBrainAdultMouseAtlasCCF2017v3p1Command.atlasName:
                     atlas = (Atlas) cmd.run(AllenBrainAdultMouseAtlasCCF2017v3p1Command.class, true).get().getOutput("ba");
                     break;
+                case AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand.atlasName:
+                    atlas = (Atlas) cmd.run(AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand.class, true).get().getOutput("ba");
+                    break;
+                case WaxholmSpragueDawleyRatV4p2ASRCommand.atlasName:
+                    atlas = (Atlas) cmd.run(WaxholmSpragueDawleyRatV4p2ASRCommand.class, true).get().getOutput("ba");
+                    break;
                 default:
                     if (extraAtlases.containsKey(choice)) {
                         atlas = extraAtlases.get(choice).get();
@@ -104,7 +112,9 @@ public class AtlasChooserCommand extends DynamicCommand {
         }
         Collections.sort(choices);
         choices.add(0, WaxholmSpragueDawleyRatV4p2Atlas.atlasName);
+        choices.add(0, WaxholmSpragueDawleyRatV4p2ASRCommand.atlasName);
         choices.add(0, AllenBrainAdultMouseAtlasCCF2017v3p1Command.atlasName);
+        choices.add(0, AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand.atlasName);
         final MutableModuleItem<String> input = getInfo().getMutableInput("choice",
                 String.class);
         input.setChoices(choices);

@@ -19,10 +19,9 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package ch.epfl.biop.atlas.mouse.allen.ccfv3p1;
+package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2asr;
 
 import ch.epfl.biop.atlas.AtlasLocationHelper;
-import ch.epfl.biop.atlas.mouse.allen.ccfv3.AllenBrainCCFv3Downloader;
 import ch.epfl.biop.atlas.mouse.allen.ccfv3.DownloadProgressBar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,25 +29,28 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.URL;
 
-public class AllenBrainCCFv3p1Downloader {
+public class WaxholmSpragueDawleyRatV4p2ASRDownloader {
 
-    protected static Logger logger = LoggerFactory.getLogger(AllenBrainCCFv3p1Downloader.class);
+    protected static Logger logger = LoggerFactory.getLogger(WaxholmSpragueDawleyRatV4p2ASRDownloader.class);
 
-    final public static String allen_mouse_brain_CCFv3p1_xml_v1 = "https://zenodo.org/record/7492551/files/ccf2017-mod65000-border-centered-mm-bc.xml?download=1";
+    private static String xmlFileName = "WHS_SD_rat_atlas_v4p2asr.xml";
+    private static String hdf5FileName = "WHS_SD_rat_atlas_v4p1.h5";
 
+    final public static String wh_sd_rat_v4p2_hdf5 = "https://zenodo.org/record/7492525/files/"+hdf5FileName+"?download=1";
+    final public static String wh_sd_rat_v4p2_xml = "https://zenodo.org/records/14055690/files/WHS_SD_rat_atlas_v4p2asr.xml?download=1";
     static public URL getMapUrl() {
         if (!AtlasLocationHelper.getAtlasCacheDir().exists()) {
             AtlasLocationHelper.getAtlasCacheDir().mkdir();
         }
 
-        File fileXml = new File(AtlasLocationHelper.getAtlasCacheDir(), "mouse_brain_ccfv3p1.xml");
-        File fileHdf5 = new File(AtlasLocationHelper.getAtlasCacheDir(), "ccf2017-mod65000-border-centered-mm-bc.h5");
+        File fileXml = new File(AtlasLocationHelper.getAtlasCacheDir(), xmlFileName);
+        File fileHdf5 = new File(AtlasLocationHelper.getAtlasCacheDir(), hdf5FileName);
 
         boolean dlH5 = true;
         boolean dlXml = true;
 
         if (fileHdf5.exists()) {
-            if (fileHdf5.length() != AllenBrainCCFv3Downloader.expected_hdf5_file_size) {
+            if (fileHdf5.length() != 601_500_109L) {
                 logger.warn("hdf5 file wrong size ... downloading again");
             } else {
                 logger.info("hdf5 file already downloaded - skipping");
@@ -64,8 +66,8 @@ public class AllenBrainCCFv3p1Downloader {
         URL returned = null;
 
         try {
-            if (dlXml) DownloadProgressBar.urlToFile(new URL(allen_mouse_brain_CCFv3p1_xml_v1), new File(AtlasLocationHelper.getAtlasCacheDir(), "mouse_brain_ccfv3p1.xml"), "Downloading mouse_brain_ccfv3p1.xml", -1);
-            if (dlH5) DownloadProgressBar.urlToFile(new URL(AllenBrainCCFv3Downloader.allen_mouse_brain_CCFv3_hdf5_v1), new File(AtlasLocationHelper.getAtlasCacheDir(), "ccf2017-mod65000-border-centered-mm-bc.h5"), "Downloading mouse_brain_ccfv3.h5", 3_089_344_351L);
+            if (dlXml) DownloadProgressBar.urlToFile(new URL(wh_sd_rat_v4p2_xml), new File(AtlasLocationHelper.getAtlasCacheDir(), xmlFileName), "Downloading "+xmlFileName, -1);
+            if (dlH5) DownloadProgressBar.urlToFile(new URL(wh_sd_rat_v4p2_hdf5), new File(AtlasLocationHelper.getAtlasCacheDir(), hdf5FileName), "Downloading "+hdf5FileName, 601_500_109L);
 
             returned = fileXml.toURI().toURL();
         } catch (Exception e) {

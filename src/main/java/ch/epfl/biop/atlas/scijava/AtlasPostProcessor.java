@@ -52,12 +52,16 @@ public class AtlasPostProcessor extends AbstractPostprocessorPlugin {
 			if ((output.getGenericType()== Atlas.class)&&(output.isOutput())) {
 				final String name = output.getName();
 				Atlas ba = (Atlas) module.getOutput(name);
-				if (!os.getObjects(Atlas.class).contains(ba)) { // Avoids double addition // TODO : avoid putting multiple times the same atlas
-					os.addObject(ba);
-					ba.getMap().getStructuralImages().forEach((key,source) -> {
-						source_service.register(source);
-					});
-					source_service.register(ba.getMap().getLabelImage());
+				if (ba == null) {
+					System.err.println("No atlas was returned - the open atlas command did not work as expected.");
+				} else {
+					if (!os.getObjects(Atlas.class).contains(ba)) { // Avoids double addition // TODO : avoid putting multiple times the same atlas
+						os.addObject(ba);
+						ba.getMap().getStructuralImages().forEach((key, source) -> {
+							source_service.register(source);
+						});
+						source_service.register(ba.getMap().getLabelImage());
+					}
 				}
 			}
 		});

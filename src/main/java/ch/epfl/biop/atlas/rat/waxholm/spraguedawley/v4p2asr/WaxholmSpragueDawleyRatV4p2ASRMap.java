@@ -19,7 +19,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2;
+package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2asr;
 
 import bdv.util.RealRandomAccessibleIntervalSource;
 import bdv.viewer.Source;
@@ -44,7 +44,7 @@ import java.util.function.BiConsumer;
 
 import static ch.epfl.biop.atlas.struct.AtlasHelper.getCoordinateSac;
 
-public class WaxholmSpragueDawleyRatV4p2Map implements AtlasMap {
+public class WaxholmSpragueDawleyRatV4p2ASRMap implements AtlasMap {
 
     URL dataSource;
 
@@ -94,7 +94,7 @@ public class WaxholmSpragueDawleyRatV4p2Map implements AtlasMap {
         labelSource = sacs.get(3);
 
         BiConsumer<RealLocalizable, UnsignedShortType> leftRightIndicator = (l, t) -> {
-            if (l.getFloatPosition(0)<0) {
+            if (l.getFloatPosition(0)>10.374) {
                 t.set(255);
             } else {
                 t.set(0);
@@ -157,10 +157,7 @@ public class WaxholmSpragueDawleyRatV4p2Map implements AtlasMap {
 
     @Override
     public AffineTransform3D getCoronalTransform() {
-        AffineTransform3D at3d = new AffineTransform3D();
-        at3d.rotate(0,-Math.PI/2);
-        at3d.rotate(2,Math.PI);
-        return at3d;
+        return new AffineTransform3D();
     }
 
     @Override

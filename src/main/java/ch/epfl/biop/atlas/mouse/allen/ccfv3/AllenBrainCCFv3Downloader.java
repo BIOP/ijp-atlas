@@ -22,13 +22,10 @@
 package ch.epfl.biop.atlas.mouse.allen.ccfv3;
 
 import ch.epfl.biop.atlas.AtlasLocationHelper;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.net.URL;
 
 public class AllenBrainCCFv3Downloader {
@@ -36,6 +33,7 @@ public class AllenBrainCCFv3Downloader {
     protected static Logger logger = LoggerFactory.getLogger(AllenBrainCCFv3Downloader.class);
 
     final public static String allen_mouse_brain_CCFv3_hdf5_v1 = "https://zenodo.org/record/4486659/files/ccf2017-mod65000-border-centered-mm-bc.h5?download=1";
+    final public static long expected_hdf5_file_size = 3_089_344_351L;
     final public static String allen_mouse_brain_CCFv3_xml_v1 = "https://zenodo.org/record/4486659/files/ccf2017-mod65000-border-centered-mm-bc.xml?download=1";
     final public static String allen_mouse_brain_CCFv3_ontology_v1 = "https://zenodo.org/record/4486659/files/1.json?download=1";
 

@@ -19,7 +19,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2;
+package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2asr;
 
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4.WaxholmSpragueDawleyRatV4Ontology;
 import ch.epfl.biop.atlas.struct.Atlas;
@@ -30,9 +30,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WaxholmSpragueDawleyRatV4p2Atlas implements Atlas {
+public class WaxholmSpragueDawleyRatV4p2ASRAtlas implements Atlas {
 
-    WaxholmSpragueDawleyRatV4p2Map map;
+    WaxholmSpragueDawleyRatV4p2ASRMap map;
     WaxholmSpragueDawleyRatV4Ontology ontology;
 
     @Override
@@ -51,7 +51,7 @@ public class WaxholmSpragueDawleyRatV4p2Atlas implements Atlas {
         ontology.setDataSource(ontologyURL);
 
         ontology.initialize();
-        map = new WaxholmSpragueDawleyRatV4p2Map();
+        map = new WaxholmSpragueDawleyRatV4p2ASRMap();
         map.setDataSource(mapURL);
         map.initialize(this.toString());
     }
@@ -72,7 +72,7 @@ public class WaxholmSpragueDawleyRatV4p2Atlas implements Atlas {
         return "https://www.nitrc.org/projects/whs-sd-atlas";
     }
 
-    final public static String atlasName = "Rat - Waxholm Sprague Dawley V4p2";
+    final public static String atlasName = "whs_sd_rat_39um_java";
 
     @Override
     public String getName() {
