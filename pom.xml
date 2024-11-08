@@ -107,6 +107,7 @@
 		<license.licenseName>gpl_v3</license.licenseName>
 		<license.copyrightOwners>EPFL</license.copyrightOwners>
 		<bigdataviewer-playground.version>0.10.4</bigdataviewer-playground.version>
+		<bigdataviewer-image-loaders.version>0.8.6</bigdataviewer-image-loaders.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
@@ -142,6 +143,19 @@
 			<groupId>sc.fiji</groupId>
 			<artifactId>bigdataviewer-playground</artifactId>
 			<version>${bigdataviewer-playground.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.epfl.biop</groupId>
+			<artifactId>bigdataviewer-image-loaders</artifactId>
+			<version>${bigdataviewer-image-loaders.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.epfl.biop</groupId>
+			<artifactId>ImageToAtlasRegister</artifactId>
+			<version>0.9.8</version>
+			<scope>test</scope>
 		</dependency>
 
 	</dependencies>
