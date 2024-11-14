@@ -11,7 +11,7 @@
 
 	<groupId>ch.epfl.biop</groupId>
 	<artifactId>atlas</artifactId>
-	<version>0.2.3-SNAPSHOT</version>
+	<version>0.2.3</version>
 
 	<name>Atlases</name>
 	<description>Repo containing a standard API for Atlases and some example ones</description>
@@ -87,7 +87,7 @@
 	<scm>
 		<connection>scm:git:https://github.com/BIOP/ijp-atlas</connection>
 		<developerConnection>scm:git:git@github.com:BIOP/ijp-atlas</developerConnection>
-		<tag>HEAD</tag>
+		<tag>atlas-0.2.3</tag>
 		<url>https://github.com/BIOP/ijp-atlas</url>
 	</scm>
 	
