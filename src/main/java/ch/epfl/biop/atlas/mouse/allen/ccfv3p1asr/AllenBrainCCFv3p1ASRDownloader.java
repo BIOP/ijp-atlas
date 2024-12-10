@@ -64,7 +64,7 @@ public class AllenBrainCCFv3p1ASRDownloader {
         URL returned = null;
 
         try {
-            if (dlXml) DownloadProgressBar.urlToFile(new URL(allen_mouse_brain_CCFv3p1asr_xml_v1), new File(AtlasLocationHelper.getAtlasCacheDir(), "mouse_brain_ccfv3p1.xml"), "Downloading mouse_brain_ccfv3p1.xml", -1);
+            if (dlXml) DownloadProgressBar.urlToFile(new URL(allen_mouse_brain_CCFv3p1asr_xml_v1), new File(AtlasLocationHelper.getAtlasCacheDir(), "mouse_brain_ccfv3p1asr.xml"), "Downloading mouse_brain_ccfv3p1asr.xml", -1);
             if (dlH5) DownloadProgressBar.urlToFile(new URL(AllenBrainCCFv3Downloader.allen_mouse_brain_CCFv3_hdf5_v1), new File(AtlasLocationHelper.getAtlasCacheDir(), "ccf2017-mod65000-border-centered-mm-bc.h5"), "Downloading mouse_brain_ccfv3.h5", 3_089_344_351L);
 
             returned = fileXml.toURI().toURL();
