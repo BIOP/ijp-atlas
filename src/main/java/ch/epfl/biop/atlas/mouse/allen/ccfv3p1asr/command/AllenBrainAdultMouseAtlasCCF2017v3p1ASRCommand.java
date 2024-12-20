@@ -46,8 +46,8 @@ public class AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand extends AllenAtlasAS
 	
 	public static String keyPrefix = AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand.class.getName()+".";
 
-	String mapUrl = Prefs.get(keyPrefix+"mapUrl","");
-    String ontologyUrl = Prefs.get(keyPrefix+"ontologyUrl","");
+	String mapUrl;// = Prefs.get(keyPrefix+"mapUrl","");
+    String ontologyUrl;// = Prefs.get(keyPrefix+"ontologyUrl","");
 
 	@Parameter(type= ItemIO.OUTPUT)
 	Atlas ba;
