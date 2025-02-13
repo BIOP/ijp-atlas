@@ -3,7 +3,7 @@ package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2asr.command;
  * #%L
  * Repo containing a standard API for Atlases and some example ones
  * %%
- * Copyright (C) 2021 - 2024 EPFL
+ * Copyright (C) 2021 - 2025 EPFL
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
