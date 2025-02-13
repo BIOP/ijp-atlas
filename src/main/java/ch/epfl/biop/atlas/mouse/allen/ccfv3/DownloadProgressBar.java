@@ -45,39 +45,38 @@ public class DownloadProgressBar {
         frame.setVisible(true);
 
         RunnableWithException updatethread = () -> {
-                HttpURLConnection httpConnection = (HttpURLConnection) (url.openConnection());
-                long completeFileSize = httpConnection.getContentLength();
-                logger.info("File Size : "+completeFileSize);
+            HttpURLConnection httpConnection = (HttpURLConnection) (url.openConnection());
+            httpConnection.setRequestProperty("Accept", "*/*"); // Set Accept header
 
-                if (completeFileSize == -1) completeFileSize = fileSize;
+            int responseCode = httpConnection.getResponseCode();
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                throw new RuntimeException("Server returned HTTP response code: " + responseCode + " for URL: " + url);
+            }
 
-                java.io.BufferedInputStream in = new java.io.BufferedInputStream(httpConnection.getInputStream());
-                java.io.FileOutputStream fos = new java.io.FileOutputStream(
-                        file.getAbsolutePath());
-                BufferedOutputStream bout = new BufferedOutputStream(
-                        fos, 1024*1024);
-                byte[] data = new byte[1024*1024];
-                long downloadedFileSize = 0;
-                int x = 0;
-                while ((x = in.read(data, 0, 1024*1024)) >= 0) {
-                    downloadedFileSize += x;
+            long completeFileSize = httpConnection.getContentLengthLong();
+            logger.info("File Size : " + completeFileSize);
 
-                    // calculate progress
-                    final int currentProgress = (int) ((((double)downloadedFileSize) / ((double)completeFileSize)) * 10000);
+            if (completeFileSize == -1) completeFileSize = fileSize;
 
-                    // update progress bar
-                    SwingUtilities.invokeLater(new Runnable() {
+            java.io.BufferedInputStream in = new java.io.BufferedInputStream(httpConnection.getInputStream());
+            java.io.FileOutputStream fos = new java.io.FileOutputStream(file.getAbsolutePath());
+            BufferedOutputStream bout = new BufferedOutputStream(fos, 1024 * 1024);
+            byte[] data = new byte[1024 * 1024];
+            long downloadedFileSize = 0;
+            int x = 0;
+            while ((x = in.read(data, 0, 1024 * 1024)) >= 0) {
+                downloadedFileSize += x;
 
-                        @Override
-                        public void run() {
-                            jProgressBar.setValue(currentProgress);
-                        }
-                    });
+                // calculate progress
+                final int currentProgress = (int) ((((double) downloadedFileSize) / ((double) completeFileSize)) * 10000);
 
-                    bout.write(data, 0, x);
-                }
-                bout.close();
-                in.close();
+                // update progress bar
+                SwingUtilities.invokeLater(() -> jProgressBar.setValue(currentProgress));
+
+                bout.write(data, 0, x);
+            }
+            bout.close();
+            in.close();
         };
 
         Thread t = new Thread(() -> {
