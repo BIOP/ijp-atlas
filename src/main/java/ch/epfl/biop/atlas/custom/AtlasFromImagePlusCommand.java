@@ -43,7 +43,7 @@ public class AtlasFromImagePlusCommand implements Command {
     @Parameter
     ImagePlus structural_images;
 
-    @Parameter(label = "Label Image (optional)", required = false)
+    @Parameter(label = "Label Image")
     ImagePlus label_image;
 
     @Parameter
@@ -60,14 +60,6 @@ public class AtlasFromImagePlusCommand implements Command {
             atlas.getOntology().initialize();
             os.addObject(atlas, atlas_name);
             AtlasChooserCommand.registerAtlas(atlas.getName(), () -> atlas);
-
-            //AtlasHelper.saveOntologyToJsonFile(atlas.getOntology(), ontology.getAbsolutePath());
-
-            System.out.println(
-            new GsonBuilder()
-                    .setPrettyPrinting()
-                    .create()
-                    .toJson(new AtlasHelper.SerializableOntology(atlas.getOntology())));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
