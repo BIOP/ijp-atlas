@@ -189,6 +189,7 @@ public class AtlasFromSourcesHelper {
             @Override
             public void initialize() throws Exception {
                 HashSet<Integer> values = getUniquePixelValues(labelImage);
+                values.remove(0); // Causes issues otherwise
                 int rootIdTest = 1024;
                 while (values.contains(rootIdTest)) {
                     rootIdTest*=2;
