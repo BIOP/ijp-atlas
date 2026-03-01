@@ -31,9 +31,9 @@ import net.imglib2.position.FunctionRealRandomAccessible;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.FloatType;
-import sc.fiji.bdvpg.services.SourceAndConverterServices;
-import sc.fiji.bdvpg.sourceandconverter.SourceAndConverterHelper;
-import sc.fiji.bdvpg.spimdata.importer.SpimDataFromXmlImporter;
+import sc.fiji.bdvpg.services.SourceServices;
+import sc.fiji.bdvpg.source.SourceHelper;
+import sc.fiji.bdvpg.dataset.importer.SpimDataFromXmlImporter;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -81,9 +81,9 @@ public class WaxholmSpragueDawleyRatV4p2ASRMap implements AtlasMap {
 
         SpimDataFromXmlImporter importer = new SpimDataFromXmlImporter(address);
 
-        final List<SourceAndConverter<?>> sacs = SourceAndConverterServices
-                .getSourceAndConverterService()
-                .getSourceAndConverterFromSpimdata(importer.get());
+        final List<SourceAndConverter<?>> sacs = SourceServices
+                .getSourceService()
+                .getSourcesFromDataset(importer.get());
 
         atlasSources.put("Structure", sacs.get(0));
 
@@ -108,11 +108,11 @@ public class WaxholmSpragueDawleyRatV4p2ASRMap implements AtlasMap {
                 FinalInterval.createMinMax( 0, 0, 0, 1000, 1000, 0),
                 new UnsignedShortType(), new AffineTransform3D(), "Left_Right" );
 
-        SourceAndConverter<?> leftRight = SourceAndConverterHelper.createSourceAndConverter(s);
+        SourceAndConverter<?> leftRight = SourceHelper.createSourceAndConverter(s);
 
         atlasSources.put("Left Right", leftRight);
 
-        SourceAndConverterServices.getSourceAndConverterService().register(leftRight);
+        SourceServices.getSourceService().register(leftRight);
 
         SourceAndConverter<FloatType> xSource = getCoordinateSac(0,"X");
         SourceAndConverter<FloatType> ySource = getCoordinateSac(1,"Y");
@@ -122,9 +122,9 @@ public class WaxholmSpragueDawleyRatV4p2ASRMap implements AtlasMap {
         atlasSources.put("Y", ySource);
         atlasSources.put("Z", zSource);
 
-        SourceAndConverterServices.getSourceAndConverterService().register(xSource);
-        SourceAndConverterServices.getSourceAndConverterService().register(ySource);
-        SourceAndConverterServices.getSourceAndConverterService().register(zSource);
+        SourceServices.getSourceService().register(xSource);
+        SourceServices.getSourceService().register(ySource);
+        SourceServices.getSourceService().register(zSource);
     }
 
     @Override

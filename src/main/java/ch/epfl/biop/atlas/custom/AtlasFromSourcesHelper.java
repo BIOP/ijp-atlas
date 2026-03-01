@@ -30,7 +30,7 @@ import ch.epfl.biop.atlas.struct.AtlasMap;
 import ch.epfl.biop.atlas.struct.AtlasNode;
 import ch.epfl.biop.atlas.struct.AtlasOntology;
 import ch.epfl.biop.bdv.img.imageplus.ImagePlusToSpimData;
-import ch.epfl.biop.sourceandconverter.SourceVoxelProcessor;
+import ch.epfl.biop.source.SourceVoxelProcessor;
 import ij.ImagePlus;
 import ij.process.ImageProcessor;
 import mpicbg.spim.data.generic.AbstractSpimData;
@@ -41,8 +41,8 @@ import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.ComplexType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
-import sc.fiji.bdvpg.services.SourceAndConverterServices;
-import sc.fiji.bdvpg.sourceandconverter.SourceAndConverterHelper;
+import sc.fiji.bdvpg.services.SourceServices;
+import sc.fiji.bdvpg.source.SourceHelper;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -334,21 +334,21 @@ public class AtlasFromSourcesHelper {
 
         AbstractSpimData<?> sd = ImagePlusToSpimData.getSpimData(image);
 
-        SourceAndConverterServices.getSourceAndConverterService()
+        SourceServices.getSourceService()
                 .register(sd);
 
-        List<SourceAndConverter<?>> structuralImages = SourceAndConverterServices
-                .getSourceAndConverterService()
-                .getSourceAndConverterFromSpimdata(sd);
+        List<SourceAndConverter<?>> structuralImages = SourceServices
+                .getSourceService()
+                .getSourcesFromDataset(sd);
 
         AbstractSpimData<?> sdLabel = ImagePlusToSpimData.getSpimData(label);
 
-        SourceAndConverterServices.getSourceAndConverterService()
+        SourceServices.getSourceService()
                 .register(sdLabel);
 
-        List<SourceAndConverter<?>> labelSource = SourceAndConverterServices
-                .getSourceAndConverterService()
-                .getSourceAndConverterFromSpimdata(sdLabel);
+        List<SourceAndConverter<?>> labelSource = SourceServices
+                .getSourceService()
+                .getSourcesFromDataset(sdLabel);
 
         AtlasMap map = fromSources(structuralImages.toArray(new SourceAndConverter[0]),
                     labelSource.get(0),atlasPrecisionMm
@@ -397,7 +397,7 @@ public class AtlasFromSourcesHelper {
                     FinalInterval.createMinMax( 0, 0, 0, 1000, 1000, 0),
                     new UnsignedShortType(), new AffineTransform3D(), "Left_Right" );
 
-            SourceAndConverter<?> leftRight = SourceAndConverterHelper.createSourceAndConverter(s);
+            SourceAndConverter<?> leftRight = SourceHelper.createSourceAndConverter(s);
 
             keyToImage.put("X", AtlasHelper.getCoordinateSac(0, "X"));
             keyToImage.put("Y", AtlasHelper.getCoordinateSac(1, "Y"));

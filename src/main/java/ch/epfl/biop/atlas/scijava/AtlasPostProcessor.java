@@ -29,7 +29,7 @@ import org.scijava.module.process.PostprocessorPlugin;
 import org.scijava.object.ObjectService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
-import sc.fiji.bdvpg.scijava.services.SourceAndConverterService;
+import sc.fiji.bdvpg.scijava.services.SourceService;
 
 /**
  * Enables Atlas to be added to the object service when declared as an output
@@ -43,7 +43,7 @@ public class AtlasPostProcessor extends AbstractPostprocessorPlugin {
 	ObjectService os;
 
 	@Parameter
-	SourceAndConverterService source_service;
+	SourceService source_service;
 	
 	@Override
 	public void process(Module module) {

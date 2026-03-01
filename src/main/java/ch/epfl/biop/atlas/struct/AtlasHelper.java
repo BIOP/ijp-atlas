@@ -34,7 +34,7 @@ import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.FloatType;
 import org.scijava.util.TreeNode;
-import sc.fiji.bdvpg.sourceandconverter.SourceAndConverterHelper;
+import sc.fiji.bdvpg.source.SourceHelper;
 
 import java.awt.*;
 import java.io.*;
@@ -87,7 +87,7 @@ public class AtlasHelper {
                 FinalInterval.createMinMax( 0, 0, 0, 1320, 800, 1140),
                 new FloatType(), new AffineTransform3D(), name );
 
-        return SourceAndConverterHelper.createSourceAndConverter(s);
+        return SourceHelper.createSourceAndConverter(s);
     }
 
     public static SourceAndConverter<FloatType> getCoordinateSacInvOffset(final int axis, final float offset, String name) {
@@ -102,7 +102,7 @@ public class AtlasHelper {
                 FinalInterval.createMinMax( 0, 0, 0, 1320, 800, 1140),
                 new FloatType(), new AffineTransform3D(), name );
 
-        return SourceAndConverterHelper.createSourceAndConverter(s);
+        return SourceHelper.createSourceAndConverter(s);
     }
 
     public static SourceAndConverter<FloatType> getCoordinateSacOffset(final int axis, final float offset, String name) {
@@ -117,7 +117,7 @@ public class AtlasHelper {
                 FinalInterval.createMinMax( 0, 0, 0, 1320, 800, 1140),
                 new FloatType(), new AffineTransform3D(), name );
 
-        return SourceAndConverterHelper.createSourceAndConverter(s);
+        return SourceHelper.createSourceAndConverter(s);
     }
 
     public static boolean saveOntologyToJsonFile(AtlasOntology ontology, String path) {
