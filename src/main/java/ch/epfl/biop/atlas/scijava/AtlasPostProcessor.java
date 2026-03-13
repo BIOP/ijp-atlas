@@ -29,7 +29,7 @@ import org.scijava.module.process.PostprocessorPlugin;
 import org.scijava.object.ObjectService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
-import sc.fiji.bdvpg.scijava.services.SourceService;
+import sc.fiji.bdvpg.scijava.service.SourceService;
 
 /**
  * Enables Atlas to be added to the object service when declared as an output

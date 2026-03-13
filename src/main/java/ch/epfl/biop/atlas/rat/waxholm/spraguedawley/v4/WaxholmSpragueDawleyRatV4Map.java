@@ -31,9 +31,9 @@ import net.imglib2.position.FunctionRealRandomAccessible;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.FloatType;
-import sc.fiji.bdvpg.services.SourceServices;
+import sc.fiji.bdvpg.service.SourceServices;
 import sc.fiji.bdvpg.source.SourceHelper;
-import sc.fiji.bdvpg.dataset.importer.SpimDataFromXmlImporter;
+import sc.fiji.bdvpg.dataset.importer.XMLToDatasetImporter;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -74,7 +74,7 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
             address = address.substring(5).replaceAll("%20", " ");
         }
 
-        SpimDataFromXmlImporter importer = new SpimDataFromXmlImporter(address);
+        XMLToDatasetImporter importer = new XMLToDatasetImporter(address);
 
         final List<SourceAndConverter<?>> sacs = SourceServices
                 .getSourceService()
