@@ -109,6 +109,8 @@
 		<bigdataviewer-playground.version>0.20.2</bigdataviewer-playground.version>
 		<bigdataviewer-biop-tools.version>0.20.4</bigdataviewer-biop-tools.version>
 		<bigdataviewer-image-loaders.version>0.20.1</bigdataviewer-image-loaders.version>
+		<appose.version>0.11.0</appose.version>
+		<imglib2-appose.version>0.9.0</imglib2-appose.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
@@ -153,16 +155,23 @@
 		</dependency>
 
 		<dependency>
-			<groupId>ch.epfl.biop</groupId>
-			<artifactId>bigdataviewer-image-loaders</artifactId>
-			<version>${bigdataviewer-image-loaders.version}</version>
+			<groupId>org.apposed</groupId>
+			<artifactId>appose</artifactId>
+			<version>${appose.version}</version>
 		</dependency>
+
+		<!-- ImgLib2 dependencies -->
+		<dependency>
+			<groupId>net.imglib2</groupId>
+			<artifactId>imglib2-appose</artifactId>
+			<version>${imglib2-appose.version}</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>ch.epfl.biop</groupId>
-			<artifactId>ImageToAtlasRegister</artifactId>
-			<version>0.9.8</version>
-			<scope>test</scope>
+			<artifactId>bigdataviewer-image-loaders</artifactId>
+			<version>${bigdataviewer-image-loaders.version}</version>
 		</dependency>
 
 	</dependencies>

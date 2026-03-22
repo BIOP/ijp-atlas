@@ -21,6 +21,8 @@
  */
 package ch.epfl.biop.atlas.scijava;
 
+import ch.epfl.biop.atlas.brainglobe.BrainGlobeAppose;
+import ch.epfl.biop.atlas.brainglobe.BrainGlobeAtlas;
 import ch.epfl.biop.atlas.mouse.allen.ccfv3p1.command.AllenBrainAdultMouseAtlasCCF2017v3p1Command;
 import ch.epfl.biop.atlas.mouse.allen.ccfv3p1asr.command.AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand;
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2.WaxholmSpragueDawleyRatV4p2Atlas;
@@ -95,6 +97,8 @@ public class AtlasChooserCommand extends DynamicCommand {
 
     static Map<String, Supplier<Atlas>> extraAtlases = new LinkedHashMap<>();
 
+    private static volatile boolean brainGlobeRegistered = false;
+
     public static void registerAtlas(String name, Supplier<Atlas> supplier) {
         if (extraAtlases.containsKey(name)) {
             System.err.println("Conflict : an atlas named "+name+" already exists. It will be overriden by the new one");
@@ -104,7 +108,36 @@ public class AtlasChooserCommand extends DynamicCommand {
         extraAtlases.put(name, supplier);
     }
 
+    /**
+     * Registers all available BrainGlobe atlases as extra atlases.
+     * Called once; if env build fails, silently skips and won't retry this session.
+     */
+    private static synchronized void registerBrainGlobeAtlases() {
+        if (brainGlobeRegistered) return;
+        brainGlobeRegistered = true;
+
+        List<String> bgAtlases = BrainGlobeAppose.getAvailableAtlasNames();
+        for (String bgName : bgAtlases) {
+            // Prefix with "BrainGlobe: " to distinguish from built-in atlases
+            extraAtlases.put(bgName, () -> {
+                try {
+                    BrainGlobeAtlas atlas = new BrainGlobeAtlas(bgName);
+                    atlas.initialize(null, null);
+                    return atlas;
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to load BrainGlobe atlas: " + bgName, e);
+                }
+            });
+        }
+        if (!bgAtlases.isEmpty()) {
+            System.out.println("Registered " + bgAtlases.size() + " BrainGlobe atlases");
+        }
+    }
+
     protected void init() {
+        // Register BrainGlobe atlases (once, no-op if already done or if it failed)
+        registerBrainGlobeAtlases();
+
         final ArrayList<String> choices = new ArrayList<>();
         for (final Map.Entry<String, Supplier<Atlas>> entry : extraAtlases.entrySet()) {
             System.out.println(entry.getKey());
