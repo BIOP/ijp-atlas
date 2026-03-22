@@ -29,6 +29,7 @@ import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2.WaxholmSpragueDawleyRat
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2.command.WaxholmSpragueDawleyRatV4p2Command;
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2asr.command.WaxholmSpragueDawleyRatV4p2ASRCommand;
 import ch.epfl.biop.atlas.struct.Atlas;
+import org.scijava.Context;
 import org.scijava.ItemIO;
 import org.scijava.command.CommandService;
 import org.scijava.command.DynamicCommand;
@@ -57,6 +58,10 @@ public class AtlasChooserCommand extends DynamicCommand {
 
     @Parameter(type = ItemIO.OUTPUT)
     Atlas atlas = null;
+
+    @Parameter
+    Context ctx;
+
     @Override
     public void run() {
         List<Atlas> openedAtlases = os.getObjects(Atlas.class);
@@ -135,6 +140,9 @@ public class AtlasChooserCommand extends DynamicCommand {
     }
 
     protected void init() {
+
+        BrainGlobeAppose.setContext(ctx);
+
         // Register BrainGlobe atlases (once, no-op if already done or if it failed)
         registerBrainGlobeAtlases();
 

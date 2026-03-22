@@ -29,7 +29,6 @@ import org.apposed.appose.Service;
 import org.apposed.appose.Service.Task;
 import org.apposed.appose.Service.TaskStatus;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,6 +39,8 @@ import java.util.function.Consumer;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apposed.appose.builder.PixiBuilder;
+import org.scijava.Context;
+import org.scijava.task.TaskService;
 
 /**
  * Handles Appose-based communication with the BrainGlobe Atlas API in Python.
@@ -107,6 +108,12 @@ public class BrainGlobeAppose {
 
 	public BrainGlobeAppose() {
 		this(DEFAULT_BG_VERSION);
+	}
+
+	private static Context ctx;
+
+	public static void setContext(Context ctx) {
+		BrainGlobeAppose.ctx = ctx;
 	}
 
 	public BrainGlobeAppose(String bgVersion) {
@@ -192,15 +199,57 @@ public class BrainGlobeAppose {
 				+ "import pathlib\n"
 		)) {
 			String script = fetchAtlasScript(atlasName);
-			Task task = python.task(script);
-			task.start();
-			task.waitFor();
 
-			if (task.status != TaskStatus.COMPLETE) {
-				throw new RuntimeException("Failed to fetch atlas '" + atlasName + "': " + task.error);
+			org.scijava.task.Task fetchAtlasTask;
+			if (ctx !=null) {
+				fetchAtlasTask = ctx.getService(TaskService.class).createTask("Fetching Atlas " + atlasName);
+			} else {
+				fetchAtlasTask = null;
 			}
 
-			return extractAtlasData(task);
+			try {
+				Task task = python
+						.task(script)
+						.listen(event -> {
+							switch (event.responseType) {
+								case LAUNCH:
+									if (fetchAtlasTask!=null) {
+										fetchAtlasTask.start();
+									}
+								case UPDATE:
+									if (fetchAtlasTask.getProgressMaximum() <= 0) {
+										fetchAtlasTask.setProgressMaximum(event.maximum);
+									}
+									if (fetchAtlasTask!=null) {
+										fetchAtlasTask.setProgressValue(event.current);
+									}
+									break;
+								case FAILURE:
+									if (errorCallback != null) {
+										errorCallback.accept("Atlas fetch failed. ");
+									}
+									if (fetchAtlasTask!=null) {
+										fetchAtlasTask.setStatusMessage("Atlas fetch failed");
+									}
+									break;
+								default:
+									break;
+							}
+						});
+
+				task.start();
+				task.waitFor();
+
+				if (task.status != TaskStatus.COMPLETE) {
+					throw new RuntimeException("Failed to fetch atlas '" + atlasName + "': " + task.error);
+				}
+
+				return extractAtlasData(task);
+			} finally {
+				if (fetchAtlasTask!=null) {
+					fetchAtlasTask.finish();
+				}
+			}
 		}
 	}
 
@@ -317,7 +366,16 @@ public class BrainGlobeAppose {
 		// Sanitize the atlas name to prevent injection
 		String safeName = atlasName.replace("'", "").replace("\\", "").replace("\n", "");
 		return "atlas_name = '" + safeName + "'\n"
-				+ "atlas = BrainGlobeAtlas(atlas_name)\n"
+				+ "\n"
+				+ "# Progress callback for atlas download\n"
+				+ "def download_progress(completed, total):\n"
+				+ "    if total > 0:\n"
+				+ "        task.update('Downloading ' + atlas_name + ': ' + str(int(100 * completed / total)) + '%', completed, total)\n"
+				+ "    else:\n"
+				+ "        task.update('Downloading ' + atlas_name + '...', 0, 0)\n"
+				+ "\n"
+				+ "task.update('Downloading...')\n"
+				+ "atlas = BrainGlobeAtlas(atlas_name, fn_update=download_progress)\n"
 				+ "\n"
 				+ "# Collect metadata\n"
 				+ "metadata = {\n"
