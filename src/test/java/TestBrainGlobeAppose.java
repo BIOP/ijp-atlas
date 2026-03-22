@@ -60,18 +60,22 @@ public class TestBrainGlobeAppose {
 		System.out.println("Atlas name: " + data.getAtlasName());
 		System.out.println("Orientation: " + data.getOrientation());
 		System.out.println("Resolution (um): " + data.getResolution());
-		System.out.println("Reference array shape: " + shapeStr(data.reference));
-		System.out.println("Annotation array shape: " + shapeStr(data.annotation));
-		System.out.println("Hemispheres array shape: " + shapeStr(data.hemispheres));
+		System.out.println("Reference path: " + data.referencePath);
+		System.out.println("Annotation path: " + data.annotationPath);
+		System.out.println("Hemispheres path: " + data.hemispheresPath);
 		System.out.println("Additional references: " + data.getAdditionalReferenceNames());
+		System.out.println("Additional reference paths: " + data.additionalReferencePaths);
 		System.out.println("Structures JSON length: " + data.structuresJson.length() + " chars");
 
 		// Basic assertions
 		assert data.getAtlasName().contains("example_mouse") : "Unexpected atlas name: " + data.getAtlasName();
 		assert data.getOrientation().equals("asr") : "Expected 'asr' orientation, got: " + data.getOrientation();
-		assert data.reference != null : "Reference array is null";
-		assert data.annotation != null : "Annotation array is null";
-		assert data.hemispheres != null : "Hemispheres array is null";
+		assert data.referencePath != null : "Reference path is null";
+		assert data.annotationPath != null : "Annotation path is null";
+		assert data.hemispheresPath != null : "Hemispheres path is null";
+		assert new File(data.referencePath).exists() : "Reference file does not exist: " + data.referencePath;
+		assert new File(data.annotationPath).exists() : "Annotation file does not exist: " + data.annotationPath;
+		assert new File(data.hemispheresPath).exists() : "Hemispheres file does not exist: " + data.hemispheresPath;
 		assert data.structuresJson != null && !data.structuresJson.isEmpty() : "Structures JSON is empty";
 
 		System.out.println("PASSED\n");
@@ -98,16 +102,5 @@ public class TestBrainGlobeAppose {
 		System.out.println("PASSED\n");
 
 		System.out.println("=== All tests passed! ===");
-	}
-
-	private static String shapeStr(org.apposed.appose.NDArray arr) {
-		if (arr == null) return "null";
-		StringBuilder sb = new StringBuilder("[");
-		for (int i = 0; i < arr.shape().length(); i++) {
-			if (i > 0) sb.append(", ");
-			sb.append(arr.shape().get(i));
-		}
-		sb.append("] dtype=").append(arr.dType());
-		return sb.toString();
 	}
 }

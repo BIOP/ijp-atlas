@@ -21,20 +21,28 @@
  */
 package ch.epfl.biop.atlas.brainglobe;
 
+import bdv.cache.SharedQueue;
 import bdv.util.RandomAccessibleIntervalSource;
+import bdv.util.VolatileSource;
+import bdv.util.volatiles.VolatileTypeMatcher;
 import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
 import ch.epfl.biop.atlas.struct.AtlasHelper;
 import ch.epfl.biop.atlas.struct.AtlasMap;
 import ch.epfl.biop.source.SourceVoxelProcessor;
+import io.scif.config.SCIFIOConfig;
+import io.scif.img.ImgOpener;
+import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.appose.ShmImg;
-import net.imglib2.img.Img;
+import net.imglib2.Volatile;
+import net.imglib2.converter.Converter;
+import net.imglib2.position.FunctionRandomAccessible;
 import net.imglib2.realtransform.AffineTransform3D;
-import net.imglib2.type.numeric.ComplexType;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.type.numeric.RealType;
-import org.apposed.appose.NDArray;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
+import net.imglib2.view.Views;
 import sc.fiji.bdvpg.source.SourceHelper;
 
 import java.net.URL;
@@ -46,8 +54,7 @@ import java.util.Map;
 /**
  * AtlasMap implementation backed by BrainGlobe atlas data received via Appose.
  * <p>
- * Converts Appose NDArrays (shared memory) into BigDataViewer SourceAndConverter
- * objects with proper affine transforms based on the atlas resolution.
+ * Image data is loaded from TIFF files on disk (stored by brainglobe-atlasapi)
  * <p>
  * BrainGlobe atlases use ASR orientation (Anterior-Superior-Right), where:
  * - axis 0 = Anterior-Posterior
@@ -67,8 +74,9 @@ public class BrainGlobeAtlasMap implements AtlasMap {
 
 	/**
 	 * Initialize from BrainGlobe atlas data obtained via Appose.
+	 * Image data is loaded from TIFF file paths on disk.
 	 *
-	 * @param data the raw atlas data from BrainGlobeAppose.fetchAtlas()
+	 * @param data the atlas data from BrainGlobeAppose.fetchAtlas()
 	 */
 	public void initializeFromApposeData(BrainGlobeAppose.BrainGlobeAtlasData data) {
 		this.atlasName = data.getAtlasName();
@@ -86,27 +94,19 @@ public class BrainGlobeAtlasMap implements AtlasMap {
 		affine.scale(voxXMm, voxYMm, voxZMm);
 
 		// Reference image
-		SourceAndConverter<?> referenceSac = ndArrayToSourceAndConverter(
-				data.reference, affine, atlasName + "_reference");
+		SourceAndConverter<?> referenceSac = loadTiffAsSourceAndConverter(data.referencePath, affine, atlasName + "_reference");
 		structuralImages.put("reference", referenceSac);
 		imageKeys.add("reference");
-		maxValues.put("reference", getMaxFromNDArray(data.reference));
 
 		// Additional reference channels
-		for (String refName : data.getAdditionalReferenceNames()) {
-			NDArray arr = data.additionalReferences.get(refName);
-			if (arr != null) {
-				SourceAndConverter<?> sac = ndArrayToSourceAndConverter(
-						arr, affine, atlasName + "_" + refName);
-				structuralImages.put(refName, sac);
-				imageKeys.add(refName);
-				maxValues.put(refName, getMaxFromNDArray(arr));
-			}
+		for (Map.Entry<String, String> entry : data.additionalReferencePaths.entrySet()) {
+			SourceAndConverter<?> sac = loadTiffAsSourceAndConverter(entry.getValue(), affine, atlasName + "_" + entry.getKey());
+			structuralImages.put(entry.getKey(), sac);
+			imageKeys.add(entry.getKey());
 		}
 
 		// Annotation/label image
-		labelSource = ndArrayToSourceAndConverter(
-				data.annotation, affine, atlasName + "_annotation");
+		labelSource = loadTiffAsSourceAndConverter(data.annotationPath, affine, atlasName + "_annotation");
 
 		// Borders derived from label image
 		SourceAndConverter<?> bordersSac = SourceVoxelProcessor.getBorders(labelSource);
@@ -122,35 +122,57 @@ public class BrainGlobeAtlasMap implements AtlasMap {
 		imageKeys.add("Y");
 		imageKeys.add("Z");
 
-		// Left/Right indicator from hemispheres image
-		SourceAndConverter<?> leftRightSac = ndArrayToSourceAndConverter(
-				data.hemispheres, affine, atlasName + "_hemispheres");
+		// Left/Right indicator from hemispheres
+		SourceAndConverter<?> leftRightSac;
+		if (data.isSymmetric()) {
+			// Symmetric atlas: generate hemispheres procedurally by splitting along the frontal axis.
+			// Fill with 2, then set the second half (from round(size/2) onward) to 1.
+			// This matches brainglobe's Python logic.
+			long[] shapeZYX = data.getShape();
+			// BrainGlobe shape is [z, y, x], ImgLib2 RAI is [x, y, z] — reverse
+			long[] shape = new long[]{shapeZYX[2], shapeZYX[1], shapeZYX[0]};
+			// Frontal axis index from Python is in ZYX order — flip: 0->2, 1->1, 2->0
+			int frontalAxis = 2-data.getFrontalAxisIndex();
+			long splitAt = Math.round(shape[frontalAxis] / 2.0);
+			FunctionRandomAccessible<UnsignedByteType> hemispheresFra = new FunctionRandomAccessible<>(3,
+					(pos, val) -> val.set(pos.getLongPosition(frontalAxis) < splitAt ? 2 : 1),
+					UnsignedByteType::new);
+			RandomAccessibleInterval<UnsignedByteType> hemispheresRai = Views.interval(hemispheresFra,
+					new FinalInterval(shape));
+			Source<UnsignedByteType> hemispheresSource = new RandomAccessibleIntervalSource<>(
+					hemispheresRai, new UnsignedByteType(), affine, atlasName + "_hemispheres");
+			leftRightSac = SourceHelper.createSourceAndConverter(hemispheresSource);
+		} else {
+			// Non-symmetric atlas: load hemispheres.tiff from disk
+			leftRightSac = loadTiffAsSourceAndConverter(data.hemispheresPath, affine, atlasName + "_hemispheres");
+		}
+
 		structuralImages.put("Left Right", leftRightSac);
 		imageKeys.add("Left Right");
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static SourceAndConverter<?> ndArrayToSourceAndConverter(
-			NDArray ndArray, AffineTransform3D transform, String name) {
+	private static SourceAndConverter<?> loadTiffAsSourceAndConverter(String filePath, AffineTransform3D transform, String name) {
+		SCIFIOConfig config = new SCIFIOConfig()
+				.imgOpenerSetImgModes(SCIFIOConfig.ImgMode.CELL);
 
-		// ShmImg wraps an NDArray as an ImgLib2 Img backed by shared memory
-		Img img = new ShmImg<>(ndArray);
+		ImgOpener opener = new ImgOpener();
+		RandomAccessibleInterval rai = opener
+				.openImgs(filePath, config)
+				.get(0);
 
-		Source source = new RandomAccessibleIntervalSource(
-				img, (NumericType) img.getType(), transform, name);
+		Source src = new RandomAccessibleIntervalSource(
+				rai, (NumericType) rai.getType(), transform, name);
 
-		return SourceHelper.createSourceAndConverter(source);
-	}
+		Converter converter = SourceHelper.createConverterRealType((RealType) src.getType());
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static double getMaxFromNDArray(NDArray ndArray) {
-		Img img = new ShmImg<>(ndArray);
-		// Stream through and find max value
-		return ((RandomAccessibleInterval<RealType<?>>) img)
-				.parallelStream()
-				.mapToDouble(ComplexType::getRealDouble)
-				.max()
-				.orElse(65535.0);
+		VolatileSource vSrc = new VolatileSource(src,
+                (Volatile) VolatileTypeMatcher.getVolatileTypeForType((NativeType)src.getType()),
+				new SharedQueue(10,1));
+
+		SourceAndConverter vsource = new SourceAndConverter(vSrc, converter);
+
+		return new SourceAndConverter<>(src, converter, vsource);
 	}
 
 	// --- AtlasMap interface ---

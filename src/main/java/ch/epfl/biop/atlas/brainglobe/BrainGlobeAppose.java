@@ -24,7 +24,6 @@ package ch.epfl.biop.atlas.brainglobe;
 import org.apposed.appose.Appose;
 import org.apposed.appose.BuildException;
 import org.apposed.appose.Environment;
-import org.apposed.appose.NDArray;
 import org.apposed.appose.Service;
 import org.apposed.appose.Service.Task;
 import org.apposed.appose.Service.TaskStatus;
@@ -46,8 +45,7 @@ import org.scijava.task.TaskService;
  * Handles Appose-based communication with the BrainGlobe Atlas API in Python.
  * <p>
  * This class manages the pixi environment creation and runs Python scripts
- * to list available atlases and fetch atlas data (images + metadata) via
- * shared memory NDArrays.
+ * to list available atlases and fetch atlas data (file paths + metadata).
  */
 public class BrainGlobeAppose {
 
@@ -110,7 +108,7 @@ public class BrainGlobeAppose {
 		this(DEFAULT_BG_VERSION);
 	}
 
-	private static Context ctx;
+	private static Context ctx; // Used for monitoring download time
 
 	public static void setContext(Context ctx) {
 		BrainGlobeAppose.ctx = ctx;
@@ -193,8 +191,6 @@ public class BrainGlobeAppose {
 		Environment env = getOrCreateEnvironment();
 		try (Service python = env.python().init(
 				"from brainglobe_atlasapi import BrainGlobeAtlas\n"
-				+ "import appose\n"
-				+ "import numpy as np\n"
 				+ "import json\n"
 				+ "import pathlib\n"
 		)) {
@@ -256,35 +252,35 @@ public class BrainGlobeAppose {
 	// --- Data container ---
 
 	/**
-	 * Holds the raw data returned from the Python BrainGlobe fetch.
-	 * NDArrays are backed by shared memory and should be consumed
-	 * before the Appose service is closed.
+	 * Holds the data returned from the Python BrainGlobe fetch.
+	 * Image data is referenced by file paths (TIFF files on disk)
+	 * rather than shared memory, avoiding memory issues with large atlases.
 	 */
 	public static class BrainGlobeAtlasData {
 		/** Atlas metadata as a map (resolution, orientation, name, etc.) */
 		public final Map<String, Object> metadata;
-		/** Reference image as NDArray (typically uint16 or uint8) */
-		public final NDArray reference;
-		/** Annotation/label image as NDArray (typically uint32) */
-		public final NDArray annotation;
-		/** Hemispheres image as NDArray (typically uint8, values: 0=left, 1=right, 2=both) */
-		public final NDArray hemispheres;
-		/** Additional reference channels, keyed by name */
-		public final Map<String, NDArray> additionalReferences;
+		/** File path to the reference image (TIFF) */
+		public final String referencePath;
+		/** File path to the annotation/label image (TIFF) */
+		public final String annotationPath;
+		/** File path to the hemispheres image (TIFF) */
+		public final String hemispheresPath;
+		/** File paths to additional reference channels, keyed by name */
+		public final Map<String, String> additionalReferencePaths;
 		/** Raw structures JSON content for ontology building */
 		public final String structuresJson;
 
 		public BrainGlobeAtlasData(Map<String, Object> metadata,
-								   NDArray reference,
-								   NDArray annotation,
-								   NDArray hemispheres,
-								   Map<String, NDArray> additionalReferences,
+								   String referencePath,
+								   String annotationPath,
+								   String hemispheresPath,
+								   Map<String, String> additionalReferencePaths,
 								   String structuresJson) {
 			this.metadata = metadata;
-			this.reference = reference;
-			this.annotation = annotation;
-			this.hemispheres = hemispheres;
-			this.additionalReferences = additionalReferences;
+			this.referencePath = referencePath;
+			this.annotationPath = annotationPath;
+			this.hemispheresPath = hemispheresPath;
+			this.additionalReferencePaths = additionalReferencePaths;
 			this.structuresJson = structuresJson;
 		}
 
@@ -317,6 +313,27 @@ public class BrainGlobeAppose {
 			return (String) metadata.get("atlas_link");
 		}
 
+		/** Whether the atlas uses a symmetric reference (no hemispheres.tiff) */
+		public boolean isSymmetric() {
+			Boolean sym = (Boolean) metadata.get("symmetric");
+			return sym != null && sym;
+		}
+
+		/** Index of the frontal (left-right) axis in the shape array (0, 1, or 2) */
+		public int getFrontalAxisIndex() {
+			Number idx = (Number) metadata.get("frontal_axis_index");
+			return idx != null ? idx.intValue() : 2;
+		}
+
+		/** Shape of the reference volume [dim0, dim1, dim2] */
+		@SuppressWarnings("unchecked")
+		public long[] getShape() {
+			List<Number> raw = (List<Number>) metadata.get("shape");
+			long[] shape = new long[raw.size()];
+			for (int i = 0; i < raw.size(); i++) shape[i] = raw.get(i).longValue();
+			return shape;
+		}
+
 		/** Names of additional reference channels */
 		@SuppressWarnings("unchecked")
 		public List<String> getAdditionalReferenceNames() {
@@ -332,25 +349,25 @@ public class BrainGlobeAppose {
 		Map<String, Object> metadata = new Gson().fromJson(metadataJson,
 				new TypeToken<Map<String, Object>>(){}.getType());
 
-		NDArray reference = (NDArray) task.outputs.get("reference");
-		NDArray annotation = (NDArray) task.outputs.get("annotation");
-		NDArray hemispheres = (NDArray) task.outputs.get("hemispheres");
+		String referencePath = (String) task.outputs.get("reference_path");
+		String annotationPath = (String) task.outputs.get("annotation_path");
+		String hemispheresPath = (String) task.outputs.get("hemispheres_path");
 		String structuresJson = (String) task.outputs.get("structures_json");
 
 		@SuppressWarnings("unchecked")
 		List<String> additionalRefNames = (List<String>) metadata.get("additional_references");
-		Map<String, NDArray> additionalRefs = new HashMap<>();
+		Map<String, String> additionalRefPaths = new HashMap<>();
 		if (additionalRefNames != null) {
 			for (int i = 0; i < additionalRefNames.size(); i++) {
-				NDArray arr = (NDArray) task.outputs.get("additional_ref_" + i);
-				if (arr != null) {
-					additionalRefs.put(additionalRefNames.get(i), arr);
+				String path = (String) task.outputs.get("additional_ref_path_" + i);
+				if (path != null) {
+					additionalRefPaths.put(additionalRefNames.get(i), path);
 				}
 			}
 		}
 
-		return new BrainGlobeAtlasData(metadata, reference, annotation, hemispheres,
-				additionalRefs, structuresJson);
+		return new BrainGlobeAtlasData(metadata, referencePath, annotationPath, hemispheresPath,
+				additionalRefPaths, structuresJson);
 	}
 
 	private String listAtlasesScript() {
@@ -377,37 +394,33 @@ public class BrainGlobeAppose {
 				+ "task.update('Downloading...')\n"
 				+ "atlas = BrainGlobeAtlas(atlas_name, fn_update=download_progress)\n"
 				+ "\n"
+				+ "root = pathlib.Path(atlas.root_dir)\n"
+				+ "\n"
 				+ "# Collect metadata\n"
 				+ "metadata = {\n"
 				+ "    'atlas_name': atlas.atlas_name,\n"
 				+ "    'resolution': [float(r) for r in atlas.metadata['resolution']],\n"
 				+ "    'orientation': atlas.orientation,\n"
+				+ "    'symmetric': bool(atlas.metadata.get('symmetric', False)),\n"
+				+ "    'frontal_axis_index': atlas.space.axes_order.index('frontal'),\n"
 				+ "    'citation': atlas.metadata.get('citation', ''),\n"
 				+ "    'atlas_link': atlas.metadata.get('atlas_link', ''),\n"
 				+ "    'additional_references': list(atlas.metadata.get('additional_references', [])),\n"
-				+ "    'shape': [int(s) for s in atlas.reference.shape],\n"
+				+ "    'shape': [int(s) for s in atlas.shape],\n"
 				+ "}\n"
 				+ "task.outputs['metadata'] = json.dumps(metadata)\n"
 				+ "\n"
 				+ "# Read structures.json content\n"
-				+ "structures_path = pathlib.Path(atlas.root_dir) / 'structures.json'\n"
+				+ "structures_path = root / 'structures.json'\n"
 				+ "task.outputs['structures_json'] = structures_path.read_text()\n"
 				+ "\n"
-				+ "# Helper to create shared NDArray from numpy array\n"
-				+ "def to_shared(arr):\n"
-				+ "    # Ensure contiguous C-order array\n"
-				+ "    arr = np.ascontiguousarray(arr)\n"
-				+ "    shared = appose.NDArray(str(arr.dtype), arr.shape)\n"
-				+ "    shared.ndarray()[:] = arr[:]\n"
-				+ "    return shared\n"
-				+ "\n"
-				+ "# Transfer image arrays via shared memory\n"
-				+ "task.outputs['reference'] = to_shared(atlas.reference)\n"
-				+ "task.outputs['annotation'] = to_shared(atlas.annotation)\n"
-				+ "task.outputs['hemispheres'] = to_shared(atlas.hemispheres)\n"
+				+ "# Return file paths instead of shared memory arrays\n"
+				+ "task.outputs['reference_path'] = str(root / 'reference.tiff')\n"
+				+ "task.outputs['annotation_path'] = str(root / 'annotation.tiff')\n"
+				+ "task.outputs['hemispheres_path'] = str(root / 'hemispheres.tiff')\n"
 				+ "\n"
 				+ "# Additional reference channels\n"
 				+ "for i, name in enumerate(atlas.metadata.get('additional_references', [])):\n"
-				+ "    task.outputs['additional_ref_' + str(i)] = to_shared(atlas.additional_references[name])\n";
+				+ "    task.outputs['additional_ref_path_' + str(i)] = str(root / name + '.tiff')\n";
 	}
 }

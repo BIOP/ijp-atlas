@@ -91,7 +91,7 @@ public class BrainGlobeAtlas implements Atlas {
 		// Build the ontology from structures JSON
 		ontology = buildOntology(data);
 
-		// Build the map (BDV sources) from NDArrays
+		// Build the map (BDV sources) from file paths
 		atlasMap = new BrainGlobeAtlasMap();
 		atlasMap.initializeFromApposeData(data);
 
