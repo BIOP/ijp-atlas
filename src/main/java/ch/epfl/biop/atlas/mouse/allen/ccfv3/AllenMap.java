@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import static ch.epfl.biop.atlas.struct.AtlasHelper.getCoordinateSac;
+import static ch.epfl.biop.atlas.struct.AtlasHelper.getCoordinateSource;
 
 public class AllenMap implements AtlasMap {
 
@@ -77,14 +77,14 @@ public class AllenMap implements AtlasMap {
 
 		XMLToDatasetImporter importer = new XMLToDatasetImporter(address);
 
-		final List<SourceAndConverter<?>> sacs = SourceServices
+		final List<SourceAndConverter<?>> sources = SourceServices
 			.getSourceService()
 			.getSourcesFromDataset(importer.get());
 
-		atlasSources.put("Ara", sacs.get(AraSetupId));
-		atlasSources.put("Nissl", sacs.get(NisslSetupId));
-		atlasSources.put("Label Borders", sacs.get(AllenMap.LabelBorberSetupId));
-		labelSource = sacs.get(AllenMap.LabelSetupId);
+		atlasSources.put("Ara", sources.get(AraSetupId));
+		atlasSources.put("Nissl", sources.get(NisslSetupId));
+		atlasSources.put("Label Borders", sources.get(AllenMap.LabelBorberSetupId));
+		labelSource = sources.get(AllenMap.LabelSetupId);
 
 		BiConsumer<RealLocalizable, UnsignedShortType > leftRightIndicator = (l, t ) -> {
 			if (l.getFloatPosition(2)<5.7) { // 11.4 mm / 2
@@ -107,9 +107,9 @@ public class AllenMap implements AtlasMap {
 
 		SourceServices.getSourceService().register(leftRight);
 
-		SourceAndConverter<FloatType> xSource = getCoordinateSac(0,"X");
-		SourceAndConverter<FloatType> ySource = getCoordinateSac(1,"Y");
-		SourceAndConverter<FloatType> zSource = getCoordinateSac(2,"Z");
+		SourceAndConverter<FloatType> xSource = getCoordinateSource(0,"X");
+		SourceAndConverter<FloatType> ySource = getCoordinateSource(1,"Y");
+		SourceAndConverter<FloatType> zSource = getCoordinateSource(2,"Z");
 
 		atlasSources.put("X", xSource);
 		atlasSources.put("Y", ySource);

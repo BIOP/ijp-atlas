@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import static ch.epfl.biop.atlas.struct.AtlasHelper.getCoordinateSac;
+import static ch.epfl.biop.atlas.struct.AtlasHelper.getCoordinateSource;
 
 public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
 
@@ -76,15 +76,15 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
 
         XMLToDatasetImporter importer = new XMLToDatasetImporter(address);
 
-        final List<SourceAndConverter<?>> sacs = SourceServices
+        final List<SourceAndConverter<?>> sources = SourceServices
                 .getSourceService()
                 .getSourcesFromDataset(importer.get());
 
-        atlasSources.put("Structure", sacs.get(0));
+        atlasSources.put("Structure", sources.get(0));
 
-        atlasSources.put("Labels Border", sacs.get(1));
+        atlasSources.put("Labels Border", sources.get(1));
 
-        labelSource = sacs.get(2);
+        labelSource = sources.get(2);
 
         BiConsumer<RealLocalizable, UnsignedShortType> leftRightIndicator = (l, t ) -> {
             if (l.getFloatPosition(0)<0) {
@@ -107,9 +107,9 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
 
         SourceServices.getSourceService().register(leftRight);
 
-        SourceAndConverter<FloatType> xSource = getCoordinateSac(0,"X");
-        SourceAndConverter<FloatType> ySource = getCoordinateSac(1,"Y");
-        SourceAndConverter<FloatType> zSource = getCoordinateSac(2,"Z");
+        SourceAndConverter<FloatType> xSource = getCoordinateSource(0,"X");
+        SourceAndConverter<FloatType> ySource = getCoordinateSource(1,"Y");
+        SourceAndConverter<FloatType> zSource = getCoordinateSource(2,"Z");
 
         atlasSources.put("X", xSource);
         atlasSources.put("Y", ySource);

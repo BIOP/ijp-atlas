@@ -24,19 +24,15 @@ package ch.epfl.biop.atlas.struct;
 import bdv.util.RealRandomAccessibleIntervalSource;
 import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
-import ch.epfl.biop.atlas.mouse.allen.ccfv3.AllenOntology;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.imglib2.FinalInterval;
 import net.imglib2.RealLocalizable;
 import net.imglib2.position.FunctionRealRandomAccessible;
 import net.imglib2.realtransform.AffineTransform3D;
-import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.FloatType;
-import org.scijava.util.TreeNode;
 import sc.fiji.bdvpg.source.SourceHelper;
 
-import java.awt.*;
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
@@ -75,7 +71,7 @@ public class AtlasHelper {
         return map;
     }
 
-    public static SourceAndConverter<FloatType> getCoordinateSac(final int axis, String name) {
+    public static SourceAndConverter<FloatType> getCoordinateSource(final int axis, String name) {
         BiConsumer<RealLocalizable, FloatType > coordIndicator = (l, t ) -> {
             t.set(l.getFloatPosition(axis));
         };

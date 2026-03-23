@@ -399,9 +399,9 @@ public class AtlasFromSourcesHelper {
 
             SourceAndConverter<?> leftRight = SourceHelper.createSourceAndConverter(s);
 
-            keyToImage.put("X", AtlasHelper.getCoordinateSac(0, "X"));
-            keyToImage.put("Y", AtlasHelper.getCoordinateSac(1, "Y"));
-            keyToImage.put("Z", AtlasHelper.getCoordinateSac(2, "Z"));
+            keyToImage.put("X", AtlasHelper.getCoordinateSource(0, "X"));
+            keyToImage.put("Y", AtlasHelper.getCoordinateSource(1, "Y"));
+            keyToImage.put("Z", AtlasHelper.getCoordinateSource(2, "Z"));
             keyToImage.put("Left Right", leftRight);
 
             if (label!=null) imageKeys.add("borders");

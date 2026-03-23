@@ -94,30 +94,32 @@ public class BrainGlobeAtlasMap implements AtlasMap {
 		affine.scale(voxXMm, voxYMm, voxZMm);
 
 		// Reference image
-		SourceAndConverter<?> referenceSac = loadTiffAsSourceAndConverter(data.referencePath, affine, atlasName + "_reference");
-		structuralImages.put("reference", referenceSac);
+		SourceAndConverter<?> referenceSource = loadTiffAsSourceAndConverter(data.referencePath, affine, atlasName + "_reference");
+		structuralImages.put("reference", referenceSource);
 		imageKeys.add("reference");
+		maxValues.put("reference", 2*getMaxMiddlePlane(referenceSource));
 
 		// Additional reference channels
 		for (Map.Entry<String, String> entry : data.additionalReferencePaths.entrySet()) {
-			SourceAndConverter<?> sac = loadTiffAsSourceAndConverter(entry.getValue(), affine, atlasName + "_" + entry.getKey());
-			structuralImages.put(entry.getKey(), sac);
+			SourceAndConverter<?> source = loadTiffAsSourceAndConverter(entry.getValue(), affine, atlasName + "_" + entry.getKey());
+			structuralImages.put(entry.getKey(), source);
 			imageKeys.add(entry.getKey());
+			maxValues.put(entry.getKey(), 2*getMaxMiddlePlane(source));
 		}
 
 		// Annotation/label image
 		labelSource = loadTiffAsSourceAndConverter(data.annotationPath, affine, atlasName + "_annotation");
 
 		// Borders derived from label image
-		SourceAndConverter<?> bordersSac = SourceVoxelProcessor.getBorders(labelSource);
-		structuralImages.put("borders", bordersSac);
+		SourceAndConverter<?> bordersSource = SourceVoxelProcessor.getBorders(labelSource);
+		structuralImages.put("borders", bordersSource);
 		imageKeys.add("borders");
 		maxValues.put("borders", 256.0);
 
 		// Coordinate sources (X, Y, Z)
-		structuralImages.put("X", AtlasHelper.getCoordinateSac(0, "X"));
-		structuralImages.put("Y", AtlasHelper.getCoordinateSac(1, "Y"));
-		structuralImages.put("Z", AtlasHelper.getCoordinateSac(2, "Z"));
+		structuralImages.put("X", AtlasHelper.getCoordinateSource(0, "X"));
+		structuralImages.put("Y", AtlasHelper.getCoordinateSource(1, "Y"));
+		structuralImages.put("Z", AtlasHelper.getCoordinateSource(2, "Z"));
 		imageKeys.add("X");
 		imageKeys.add("Y");
 		imageKeys.add("Z");
@@ -149,6 +151,27 @@ public class BrainGlobeAtlasMap implements AtlasMap {
 
 		structuralImages.put("Left Right", leftRightSac);
 		imageKeys.add("Left Right");
+	}
+
+	private<T extends RealType<T>> Double getMaxMiddlePlane(SourceAndConverter<?> source) {
+		if (!(source.getSpimSource().getType() instanceof RealType)) {
+			System.out.println("Can't auto adjust brightness of pixel type " + source.getSpimSource().getType().getClass().getSimpleName());
+			return 65535.0;
+		} else {
+			RandomAccessibleInterval<T> img = (RandomAccessibleInterval<T>) source.getSpimSource().getSource(0, source.getSpimSource().getNumMipmapLevels() - 1);
+			long zMiddle = (img.min(2) + img.max(2) + 1L) / 2L;
+			Iterable<T> sampledPixels = Views.hyperSlice(img, 2, zMiddle);
+			double minValue = Double.MAX_VALUE;
+			double maxValue = -Double.MAX_VALUE;
+
+			for(T pixel : sampledPixels) {
+				double val = pixel.getRealDouble();
+				if (val > maxValue) {
+					maxValue = val;
+				}
+			}
+			return maxValue;
+		}
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
