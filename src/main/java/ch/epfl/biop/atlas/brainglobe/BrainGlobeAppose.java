@@ -421,6 +421,6 @@ public class BrainGlobeAppose {
 				+ "\n"
 				+ "# Additional reference channels\n"
 				+ "for i, name in enumerate(atlas.metadata.get('additional_references', [])):\n"
-				+ "    task.outputs['additional_ref_path_' + str(i)] = str(root / name + '.tiff')\n";
+				+ "    task.outputs['additional_ref_path_' + str(i)] = str(root / (name + '.tiff'))\n";
 	}
 }
