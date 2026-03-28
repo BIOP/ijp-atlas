@@ -31,13 +31,17 @@ import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2asr.command.WaxholmSprag
 import ch.epfl.biop.atlas.struct.Atlas;
 import org.scijava.Context;
 import org.scijava.ItemIO;
+import org.scijava.ItemVisibility;
 import org.scijava.command.CommandService;
 import org.scijava.command.DynamicCommand;
+import org.scijava.command.InteractiveCommand;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.object.ObjectService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.ui.UIService;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -47,13 +51,23 @@ import java.util.function.Supplier;
 
 @Plugin(type = DynamicCommand.class, menuPath = "Plugins>BIOP>Atlas>Open Atlas", initializer = "init")
 public class AtlasChooserCommand extends DynamicCommand {
+
+    //https://forum.image.sc/t/trends-in-microscopy-2023-omero-server/101652
+    @Parameter(style = "message", visibility = ItemVisibility.MESSAGE, persist = false)
+    String message =  "<html>" +
+            "<h1>Import Brainglobe Atlases</h1>\n" +
+            "    <p><img src='"+AtlasChooserCommand.class.getClassLoader().getResource("graphics/brainglobe.png")+"' width='80' height='80'></img></p>" +
+            "    <p>Select '"+BRAINGLOBE_OPTION+"' if you want to use one of the BrainGlobe atlases.</p>\n" +
+            "    <p>For more information, please visit <a href=https://brainglobe.info/index.html>https://brainglobe.info/index.html</a> </p>\n" +
+            "\n</html>\n";
+
     @Parameter
     ObjectService os;
 
     @Parameter
     CommandService cmd;
 
-    @Parameter(label = "Choose an atlas", persist = false)
+    @Parameter(label = "Choose an atlas", callback = "checkBrainGlobe")
     String choice = "-";
 
     @Parameter(type = ItemIO.OUTPUT)
@@ -88,6 +102,13 @@ public class AtlasChooserCommand extends DynamicCommand {
                     atlas = (Atlas) cmd.run(WaxholmSpragueDawleyRatV4p2ASRCommand.class, true).get().getOutput("ba");
                     break;
                 default:
+                    if (!extraAtlases.containsKey(choice)) {
+                        if (!brainGlobeRegistered) {
+                            registerBrainGlobeAtlases(ctx);
+                            init();
+                        }
+                    }
+
                     if (extraAtlases.containsKey(choice)) {
                         atlas = extraAtlases.get(choice).get();
                     } else {
@@ -117,9 +138,11 @@ public class AtlasChooserCommand extends DynamicCommand {
      * Registers all available BrainGlobe atlases as extra atlases.
      * Called once; if env build fails, silently skips and won't retry this session.
      */
-    private static synchronized void registerBrainGlobeAtlases() {
+    private static synchronized void registerBrainGlobeAtlases(Context ctx) {
         if (brainGlobeRegistered) return;
         brainGlobeRegistered = true;
+
+        BrainGlobeAppose.setContext(ctx);
 
         List<String> bgAtlases = BrainGlobeAppose.getAvailableAtlasNames();
         for (String bgName : bgAtlases) {
@@ -141,10 +164,7 @@ public class AtlasChooserCommand extends DynamicCommand {
 
     protected void init() {
 
-        BrainGlobeAppose.setContext(ctx);
-
-        // Register BrainGlobe atlases (once, no-op if already done or if it failed)
-        registerBrainGlobeAtlases();
+        String iniValue = this.choice;
 
         final ArrayList<String> choices = new ArrayList<>();
         for (final Map.Entry<String, Supplier<Atlas>> entry : extraAtlases.entrySet()) {
@@ -156,9 +176,67 @@ public class AtlasChooserCommand extends DynamicCommand {
         choices.add(0, WaxholmSpragueDawleyRatV4p2ASRCommand.atlasName);
         choices.add(0, AllenBrainAdultMouseAtlasCCF2017v3p1Command.atlasName);
         choices.add(0, AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand.atlasName);
+
+        if (!brainGlobeRegistered) {
+            choices.add(BRAINGLOBE_OPTION);
+        } else {
+            getInfo().removeInput(getInfo().getInput("message"));
+        }
+
         final MutableModuleItem<String> input = getInfo().getMutableInput("choice",
                 String.class);
         input.setChoices(choices);
-        input.setValue(this, choices.get(0));
+        input.setValue(this, iniValue);
     }
+
+    final static String BRAINGLOBE_OPTION = "From BrainGlobe...";
+
+    void checkBrainGlobe() {
+        if (this.choice.equals(BRAINGLOBE_OPTION)) {
+            if (!brainGlobeRegistered) {
+                UIService uiService = ctx.getService(UIService.class);
+                boolean headless = (uiService == null) || uiService.isHeadless();
+
+                JDialog waitDialog = null;
+                if (!headless) {
+                    waitDialog = new JDialog((java.awt.Frame) null, "Loading BrainGlobe Atlases", true);
+                    JLabel waitLabel = new JLabel("Loading BrainGlobe atlases, please wait...", SwingConstants.CENTER);
+                    ImageIcon loadingIcon = new ImageIcon(AtlasChooserCommand.class.getClassLoader().getResource("graphics/loading.gif"));
+                    loadingIcon.setImage(loadingIcon.getImage().getScaledInstance(64, 64, java.awt.Image.SCALE_DEFAULT));
+                    waitLabel.setIcon(loadingIcon);
+                    waitLabel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+                    waitDialog.getContentPane().add(waitLabel);
+                    waitDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+                    waitDialog.pack();
+                    waitDialog.setLocationRelativeTo(null);
+
+                    // SwingWorker runs registration in background;
+                    // disposing the modal dialog unblocks setVisible(true) below
+                    final JDialog dlg = waitDialog;
+                    final Context context = ctx;
+                    new SwingWorker<Void, Void>() {
+                        @Override
+                        protected Void doInBackground() {
+                            registerBrainGlobeAtlases(context);
+                            return null;
+                        }
+                        @Override
+                        protected void done() {
+                            dlg.dispose();
+                        }
+                    }.execute();
+
+                    waitDialog.setVisible(true); // blocks here until worker disposes the dialog
+                } else {
+                    registerBrainGlobeAtlases(ctx);
+                }
+
+                init();
+                this.message = "<h1>Brainglobe Atlases have been added!</h1>\n" +
+                        "    <p><img src='" + AtlasChooserCommand.class.getClassLoader().getResource("graphics/brainglobe.png") + "' width='80' height='80'></img></p>" +
+                        "\n</html>\n";
+            }
+        }
+    }
+
 }
