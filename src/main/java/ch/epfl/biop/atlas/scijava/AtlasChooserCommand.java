@@ -29,6 +29,7 @@ import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2.WaxholmSpragueDawleyRat
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2.command.WaxholmSpragueDawleyRatV4p2Command;
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2asr.command.WaxholmSpragueDawleyRatV4p2ASRCommand;
 import ch.epfl.biop.atlas.struct.Atlas;
+import ch.epfl.biop.atlas.struct.CompositeAtlas;
 import org.scijava.Context;
 import org.scijava.ItemIO;
 
@@ -62,6 +63,11 @@ public class AtlasChooserCommand extends DynamicCommand {
     @Parameter(label = "Choose an atlas", callback = "checkBrainGlobe")
     String choice = "-";
 
+    @Parameter(label = "Additional atlases (comma-separated, optional)",
+            description = "Comma-separated atlas names whose structural channels will be merged into the principal atlas via CompositeAtlas. Leave empty for a plain atlas.",
+            required = false)
+    String additionalAtlases = "";
+
     @Parameter(type = ItemIO.OUTPUT)
     Atlas atlas = null;
 
@@ -70,47 +76,81 @@ public class AtlasChooserCommand extends DynamicCommand {
 
     @Override
     public void run() {
-        List<Atlas> openedAtlases = os.getObjects(Atlas.class);
+        // Resolve the principal atlas
+        Atlas principalAtlas = resolveAtlasByName(choice);
+        if (principalAtlas == null) {
+            System.err.println("Could not resolve principal atlas: " + choice);
+            return;
+        }
 
-        for (Atlas a: openedAtlases) {
-            if (a.getName().equals(choice)) {
-                atlas = a; // Atlas already opened
-                return;
+        // Parse and resolve additional atlases
+        List<Atlas> extras = new ArrayList<>();
+        if (additionalAtlases != null && !additionalAtlases.trim().isEmpty()) {
+            String[] names = additionalAtlases.split(",");
+            for (String rawName : names) {
+                String name = rawName.trim();
+                if (name.isEmpty()) continue;
+                if (name.equals(choice)) {
+                    System.err.println("Skipping additional atlas '" + name + "': same as principal atlas");
+                    continue;
+                }
+                Atlas extra = resolveAtlasByName(name);
+                if (extra != null) {
+                    extras.add(extra);
+                } else {
+                    System.err.println("Could not resolve additional atlas: " + name);
+                }
+            }
+        }
+
+        if (extras.isEmpty()) {
+            atlas = principalAtlas;
+        } else {
+            atlas = new CompositeAtlas(principalAtlas, extras);
+        }
+    }
+
+    /**
+     * Resolves an atlas by name: first checks ObjectService for an already-opened
+     * atlas, then falls back to creating a new one via built-in commands or extra suppliers.
+     */
+    private Atlas resolveAtlasByName(String name) {
+        // Check already-opened atlases first
+        for (Atlas a : os.getObjects(Atlas.class)) {
+            if (a.getName().equals(name)) {
+                return a;
             }
         }
 
         try {
-            switch (choice) {
+            switch (name) {
                 case WaxholmSpragueDawleyRatV4p2Atlas.atlasName:
-                    atlas = (Atlas) cmd.run(WaxholmSpragueDawleyRatV4p2Command.class, true).get().getOutput("ba");
-                    break;
+                    return (Atlas) cmd.run(WaxholmSpragueDawleyRatV4p2Command.class, true).get().getOutput("ba");
                 case AllenBrainAdultMouseAtlasCCF2017v3p1Command.atlasName:
-                    atlas = (Atlas) cmd.run(AllenBrainAdultMouseAtlasCCF2017v3p1Command.class, true).get().getOutput("ba");
-                    break;
+                    return (Atlas) cmd.run(AllenBrainAdultMouseAtlasCCF2017v3p1Command.class, true).get().getOutput("ba");
                 case AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand.atlasName:
-                    atlas = (Atlas) cmd.run(AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand.class, true).get().getOutput("ba");
-                    break;
+                    return (Atlas) cmd.run(AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand.class, true).get().getOutput("ba");
                 case WaxholmSpragueDawleyRatV4p2ASRCommand.atlasName:
-                    atlas = (Atlas) cmd.run(WaxholmSpragueDawleyRatV4p2ASRCommand.class, true).get().getOutput("ba");
-                    break;
+                    return (Atlas) cmd.run(WaxholmSpragueDawleyRatV4p2ASRCommand.class, true).get().getOutput("ba");
                 default:
-                    if (!extraAtlases.containsKey(choice)) {
+                    if (!extraAtlases.containsKey(name)) {
                         if (!brainGlobeRegistered) {
                             registerBrainGlobeAtlases(ctx);
                             init();
                         }
                     }
 
-                    if (extraAtlases.containsKey(choice)) {
-                        atlas = extraAtlases.get(choice).get();
+                    if (extraAtlases.containsKey(name)) {
+                        return extraAtlases.get(name).get();
                     } else {
-                        System.err.println("Unrecognized atlas named " + choice);
+                        System.err.println("Unrecognized atlas named " + name);
+                        return null;
                     }
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-
     }
 
     static Map<String, Supplier<Atlas>> extraAtlases = new LinkedHashMap<>();

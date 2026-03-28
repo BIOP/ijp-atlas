@@ -25,7 +25,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * An {@link Atlas} that combines a principal atlas with additional atlases.
@@ -54,12 +53,7 @@ public class CompositeAtlas implements Atlas {
 	public CompositeAtlas(Atlas principal, List<Atlas> additionalAtlases) {
 		this.principal = principal;
 		this.additionalAtlases = new ArrayList<>(additionalAtlases);
-		this.compositeMap = new CompositeAtlasMap(
-				principal.getMap(),
-				additionalAtlases.stream()
-						.map(Atlas::getMap)
-						.collect(Collectors.toList())
-		);
+		this.compositeMap = new CompositeAtlasMap(principal, this.additionalAtlases);
 	}
 
 	@Override
