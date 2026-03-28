@@ -198,7 +198,7 @@ public class AtlasChooserCommand extends DynamicCommand {
 
         final ArrayList<String> choices = new ArrayList<>();
         for (final Map.Entry<String, Supplier<Atlas>> entry : extraAtlases.entrySet()) {
-            System.out.println(entry.getKey());
+            //System.out.println(entry.getKey());
             choices.add(entry.getKey());
         }
         Collections.sort(choices);

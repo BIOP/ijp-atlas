@@ -56,7 +56,10 @@ public class CompositeAtlas implements Atlas {
 		this.principal = principal;
 		this.additionalAtlases = new ArrayList<>(additionalAtlases);
 		this.compositeMap = new CompositeAtlasMap(principal, this.additionalAtlases);
-		this.name = "Composite";
+		StringBuilder nameBuilder = new StringBuilder();
+		nameBuilder.append(principal.getName());
+		additionalAtlases.forEach((atlas) -> nameBuilder.append("+").append(atlas.getName()));
+		this.name = nameBuilder.toString();
 	}
 
 	@Override

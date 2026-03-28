@@ -62,9 +62,11 @@ public class CompositeAtlasMap implements AtlasMap {
 	private final Map<String, SourceAndConverter<?>> mergedImages = new LinkedHashMap<>();
 	private final List<String> mergedKeys = new ArrayList<>();
 	private final Map<String, AtlasMap> keyToSourceMap = new LinkedHashMap<>();
+	private final Map<String, String> keyToOriginalKey = new LinkedHashMap<>();
 
 	public CompositeAtlasMap(Atlas principalAtlas, List<Atlas> additionalAtlases) {
 		this.principalMap = principalAtlas.getMap();
+		String principalName = principalAtlas.getName();
 
 		List<String> principalKeys = principalMap.getImagesKeys();
 
@@ -79,17 +81,19 @@ public class CompositeAtlasMap implements AtlasMap {
 			}
 		}
 
-		// 1. Add principal structural sources
+		// 1. Add principal structural sources, prefixed with atlas name
 		for (String key : principalStructuralKeys) {
 			SourceAndConverter<?> sac = principalMap.getStructuralImages().get(key);
 			if (sac != null) {
-				mergedImages.put(key, sac);
-				mergedKeys.add(key);
-				keyToSourceMap.put(key, principalMap);
+				String insertKey = principalName + " - " + key;
+				mergedImages.put(insertKey, sac);
+				mergedKeys.add(insertKey);
+				keyToSourceMap.put(insertKey, principalMap);
+				keyToOriginalKey.put(insertKey, key);
 			}
 		}
 
-		// 2. Add structural sources from additional atlases
+		// 2. Add structural sources from additional atlases, prefixed with atlas name
 		for (Atlas additionalAtlas : additionalAtlases) {
 			AtlasMap additionalMap = additionalAtlas.getMap();
 			String atlasName = additionalAtlas.getName();
@@ -97,17 +101,11 @@ public class CompositeAtlasMap implements AtlasMap {
 				// Always drop coordinate and left/right sources
 				if (DROP_KEYS.contains(key)) continue;
 
-				String insertKey = atlasName + key;
-				if (mergedImages.containsKey(key)) {
-					// Collision: prefix with atlas name
-					insertKey = key+"_Copy";
-					logger.warning("CompositeAtlasMap: key '" + key + "' from atlas '"
-							+ atlasName + "' collides with existing key, renamed to '" + insertKey + "'");
-					if (mergedImages.containsKey(insertKey)) {
-						logger.warning("CompositeAtlasMap: prefixed key '" + insertKey
-								+ "' still collides, skipping");
-						continue;
-					}
+				String insertKey = atlasName + " - " + key;
+				if (mergedImages.containsKey(insertKey)) {
+					logger.warning("CompositeAtlasMap: key '" + insertKey + "' from atlas '"
+							+ atlasName + "' already exists, skipping");
+					continue;
 				}
 
 				SourceAndConverter<?> sac = additionalMap.getStructuralImages().get(key);
@@ -115,17 +113,19 @@ public class CompositeAtlasMap implements AtlasMap {
 					mergedImages.put(insertKey, sac);
 					mergedKeys.add(insertKey);
 					keyToSourceMap.put(insertKey, additionalMap);
+					keyToOriginalKey.put(insertKey, key);
 				}
 			}
 		}
 
-		// 3. Append principal derived sources at the end
+		// 3. Append principal derived sources at the end (no prefix)
 		for (String key : principalDerivedKeys) {
 			SourceAndConverter<?> sac = principalMap.getStructuralImages().get(key);
 			if (sac != null) {
 				mergedImages.put(key, sac);
 				mergedKeys.add(key);
 				keyToSourceMap.put(key, principalMap);
+				keyToOriginalKey.put(key, key);
 			}
 		}
 	}
@@ -174,7 +174,8 @@ public class CompositeAtlasMap implements AtlasMap {
 	public Double getImageMax(String key) {
 		AtlasMap owner = keyToSourceMap.get(key);
 		if (owner != null) {
-			return owner.getImageMax(key);
+			String originalKey = keyToOriginalKey.getOrDefault(key, key);
+			return owner.getImageMax(originalKey);
 		}
 		return principalMap.getImageMax(key);
 	}
