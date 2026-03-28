@@ -31,10 +31,9 @@ import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2asr.command.WaxholmSprag
 import ch.epfl.biop.atlas.struct.Atlas;
 import org.scijava.Context;
 import org.scijava.ItemIO;
-import org.scijava.ItemVisibility;
+
 import org.scijava.command.CommandService;
 import org.scijava.command.DynamicCommand;
-import org.scijava.command.InteractiveCommand;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.object.ObjectService;
 import org.scijava.plugin.Parameter;
@@ -49,17 +48,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-@Plugin(type = DynamicCommand.class, menuPath = "Plugins>BIOP>Atlas>Open Atlas", initializer = "init")
+@Plugin(type = DynamicCommand.class, menuPath = "Plugins>BIOP>Atlas>Open Atlas",
+        initializer = "init",
+        iconPath = "/graphics/brainglobe.png")
 public class AtlasChooserCommand extends DynamicCommand {
-
-    //https://forum.image.sc/t/trends-in-microscopy-2023-omero-server/101652
-    @Parameter(style = "message", visibility = ItemVisibility.MESSAGE, persist = false)
-    String message =  "<html>" +
-            "<h1>Import Brainglobe Atlases</h1>\n" +
-            "    <p><img src='"+AtlasChooserCommand.class.getClassLoader().getResource("graphics/brainglobe.png")+"' width='80' height='80'></img></p>" +
-            "    <p>Select '"+BRAINGLOBE_OPTION+"' if you want to use one of the BrainGlobe atlases.</p>\n" +
-            "    <p>For more information, please visit <a href=https://brainglobe.info/index.html>https://brainglobe.info/index.html</a> </p>\n" +
-            "\n</html>\n";
 
     @Parameter
     ObjectService os;
@@ -128,8 +120,6 @@ public class AtlasChooserCommand extends DynamicCommand {
     public static void registerAtlas(String name, Supplier<Atlas> supplier) {
         if (extraAtlases.containsKey(name)) {
             System.err.println("Conflict : an atlas named "+name+" already exists. It will be overriden by the new one");
-        } else {
-            System.out.println("Adding "+name+" atlas");
         }
         extraAtlases.put(name, supplier);
     }
@@ -179,8 +169,6 @@ public class AtlasChooserCommand extends DynamicCommand {
 
         if (!brainGlobeRegistered) {
             choices.add(BRAINGLOBE_OPTION);
-        } else {
-            getInfo().removeInput(getInfo().getInput("message"));
         }
 
         final MutableModuleItem<String> input = getInfo().getMutableInput("choice",
@@ -189,7 +177,7 @@ public class AtlasChooserCommand extends DynamicCommand {
         input.setValue(this, iniValue);
     }
 
-    final static String BRAINGLOBE_OPTION = "From BrainGlobe...";
+    final static String BRAINGLOBE_OPTION = "Get BrainGlobe Atlases (web)...";
 
     void checkBrainGlobe() {
         if (this.choice.equals(BRAINGLOBE_OPTION)) {
@@ -200,12 +188,27 @@ public class AtlasChooserCommand extends DynamicCommand {
                 JDialog waitDialog = null;
                 if (!headless) {
                     waitDialog = new JDialog((java.awt.Frame) null, "Loading BrainGlobe Atlases", true);
-                    JLabel waitLabel = new JLabel("Loading BrainGlobe atlases, please wait...", SwingConstants.CENTER);
+                    JPanel panel = new JPanel();
+                    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+                    panel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+
+                    JLabel infoLabel = new JLabel("<html>"
+                            + "<h2>Loading BrainGlobe Atlases (v"+BrainGlobeAppose.BG_VERSION+")</h2>"
+                            + "<p><img src='" + AtlasChooserCommand.class.getClassLoader().getResource("graphics/brainglobe.png") + "' width='80' height='80'></p>"
+                            + "<p>For more information, visit <a href='https://brainglobe.info'>https://brainglobe.info</a></p>"
+                            + "</html>", SwingConstants.CENTER);
+                    infoLabel.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+                    panel.add(infoLabel);
+
+                    panel.add(Box.createVerticalStrut(15));
+
                     ImageIcon loadingIcon = new ImageIcon(AtlasChooserCommand.class.getClassLoader().getResource("graphics/loading.gif"));
                     loadingIcon.setImage(loadingIcon.getImage().getScaledInstance(64, 64, java.awt.Image.SCALE_DEFAULT));
-                    waitLabel.setIcon(loadingIcon);
-                    waitLabel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
-                    waitDialog.getContentPane().add(waitLabel);
+                    JLabel waitLabel = new JLabel("Loading BrainGlobe atlases, please wait...", loadingIcon, SwingConstants.CENTER);
+                    waitLabel.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+                    panel.add(waitLabel);
+
+                    waitDialog.getContentPane().add(panel);
                     waitDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
                     waitDialog.pack();
                     waitDialog.setLocationRelativeTo(null);
@@ -232,9 +235,6 @@ public class AtlasChooserCommand extends DynamicCommand {
                 }
 
                 init();
-                this.message = "<h1>Brainglobe Atlases have been added!</h1>\n" +
-                        "    <p><img src='" + AtlasChooserCommand.class.getClassLoader().getResource("graphics/brainglobe.png") + "' width='80' height='80'></img></p>" +
-                        "\n</html>\n";
             }
         }
     }

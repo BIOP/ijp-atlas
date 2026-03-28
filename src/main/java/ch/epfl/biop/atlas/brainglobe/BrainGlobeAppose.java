@@ -21,6 +21,7 @@
  */
 package ch.epfl.biop.atlas.brainglobe;
 
+import ij.IJ;
 import org.apposed.appose.Appose;
 import org.apposed.appose.BuildException;
 import org.apposed.appose.Environment;
@@ -50,7 +51,7 @@ import org.scijava.task.TaskService;
 public class BrainGlobeAppose {
 
 	/** Default BrainGlobe Atlas API version */
-	public static final String DEFAULT_BG_VERSION = "2.3.0";
+	public static final String BG_VERSION = "2.3.0";
 
 	// --- Static session-level cache for atlas listing ---
 
@@ -104,9 +105,6 @@ public class BrainGlobeAppose {
 	private Consumer<String> progressCallback;
 	private Consumer<String> errorCallback;
 
-	public BrainGlobeAppose() {
-		this(DEFAULT_BG_VERSION);
-	}
 
 	private static Context ctx; // Used for monitoring download time
 
@@ -114,8 +112,8 @@ public class BrainGlobeAppose {
 		BrainGlobeAppose.ctx = ctx;
 	}
 
-	public BrainGlobeAppose(String bgVersion) {
-		this.bgVersion = bgVersion;
+	public BrainGlobeAppose() {
+		this.bgVersion = BG_VERSION;
 	}
 
 	public void setProgressCallback(Consumer<String> callback) {
@@ -211,13 +209,16 @@ public class BrainGlobeAppose {
 								case LAUNCH:
 									if (fetchAtlasTask!=null) {
 										fetchAtlasTask.start();
+										IJ.showStatus(fetchAtlasTask.getStatusMessage());
 									}
 								case UPDATE:
 									if (fetchAtlasTask.getProgressMaximum() <= 0) {
 										fetchAtlasTask.setProgressMaximum(event.maximum);
+										IJ.showStatus("Loading "+atlasName);
 									}
 									if (fetchAtlasTask!=null) {
 										fetchAtlasTask.setProgressValue(event.current);
+										IJ.showProgress((int)(event.current/1024), (int)(event.maximum/1024));
 									}
 									break;
 								case FAILURE:
