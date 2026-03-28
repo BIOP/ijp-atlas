@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import static ch.epfl.biop.atlas.struct.AtlasHelper.getCoordinateSource;
+import static ch.epfl.biop.atlas.struct.AtlasHelper.*;
 
 public class AllenMapASR implements AtlasMap {
 
@@ -83,7 +83,7 @@ public class AllenMapASR implements AtlasMap {
 
 		atlasSources.put("Ara", sources.get(AraSetupId));
 		atlasSources.put("Nissl", sources.get(NisslSetupId));
-		atlasSources.put("Label Borders", sources.get(AllenMapASR.LabelBorberSetupId));
+		atlasSources.put(KEY_BORDERS, sources.get(AllenMapASR.LabelBorberSetupId));
 		labelSource = sources.get(AllenMapASR.LabelSetupId);
 
 		BiConsumer<RealLocalizable, UnsignedShortType > leftRightIndicator = (l, t ) -> {
@@ -99,21 +99,17 @@ public class AllenMapASR implements AtlasMap {
 
 		final Source< UnsignedShortType > s = new RealRandomAccessibleIntervalSource<>( leftRightSource,
 				FinalInterval.createMinMax( 0, 0, 0, 1000, 1000, 0),
-				new UnsignedShortType(), new AffineTransform3D(), "Left_Right" );
+				new UnsignedShortType(), new AffineTransform3D(), KEY_LEFT_RIGHT );
 
 		SourceAndConverter<?> leftRight = SourceHelper.createSourceAndConverter(s);
 
-		atlasSources.put("Left Right", leftRight);
+		atlasSources.put(KEY_LEFT_RIGHT, leftRight);
 
 		SourceServices.getSourceService().register(leftRight);
 
-		SourceAndConverter<FloatType> xSource = getCoordinateSource(0,"X");
-		SourceAndConverter<FloatType> ySource = getCoordinateSource(1,"Y");
-		SourceAndConverter<FloatType> zSource = getCoordinateSource(2,"Z");
-
-		atlasSources.put("X", xSource);
-		atlasSources.put("Y", ySource);
-		atlasSources.put("Z", zSource);
+		atlasSources.put(KEY_X, getCoordinateSource(0, KEY_X));
+		atlasSources.put(KEY_Y, getCoordinateSource(1, KEY_Y));
+		atlasSources.put(KEY_Z, getCoordinateSource(2, KEY_Z));
 
 	}
 
@@ -137,11 +133,11 @@ public class AllenMapASR implements AtlasMap {
 		List<String> keys = new ArrayList<>();
 		keys.add("Nissl");
 		keys.add("Ara");
-		keys.add("Label Borders");
-		keys.add("X");
-		keys.add("Y");
-		keys.add("Z");
-		keys.add("Left Right");
+		keys.add(KEY_BORDERS);
+		keys.add(KEY_X);
+		keys.add(KEY_Y);
+		keys.add(KEY_Z);
+		keys.add(KEY_LEFT_RIGHT);
 		return keys;
 	}
 
@@ -165,7 +161,7 @@ public class AllenMapASR implements AtlasMap {
 		switch (key) {
 			case "Nissl": return (double) 56000;
 			case "Ara": return (double) 1024;
-			case "Label Borders": return (double) 1024;
+			case KEY_BORDERS: return (double) 1024;
 			default: return (double) 65535;
 		}
 	}

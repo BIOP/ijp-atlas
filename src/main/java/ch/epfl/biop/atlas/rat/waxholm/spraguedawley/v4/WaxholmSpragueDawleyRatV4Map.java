@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import static ch.epfl.biop.atlas.struct.AtlasHelper.getCoordinateSource;
+import static ch.epfl.biop.atlas.struct.AtlasHelper.*;
 
 public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
 
@@ -82,7 +82,7 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
 
         atlasSources.put("Structure", sources.get(0));
 
-        atlasSources.put("Labels Border", sources.get(1));
+        atlasSources.put(KEY_BORDERS, sources.get(1));
 
         labelSource = sources.get(2);
 
@@ -103,17 +103,17 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
 
         SourceAndConverter<?> leftRight = SourceHelper.createSourceAndConverter(s);
 
-        atlasSources.put("Left Right", leftRight);
+        atlasSources.put(KEY_LEFT_RIGHT, leftRight);
 
         SourceServices.getSourceService().register(leftRight);
 
-        SourceAndConverter<FloatType> xSource = getCoordinateSource(0,"X");
-        SourceAndConverter<FloatType> ySource = getCoordinateSource(1,"Y");
-        SourceAndConverter<FloatType> zSource = getCoordinateSource(2,"Z");
+        SourceAndConverter<FloatType> xSource = getCoordinateSource(0, KEY_X);
+        SourceAndConverter<FloatType> ySource = getCoordinateSource(1, KEY_Y);
+        SourceAndConverter<FloatType> zSource = getCoordinateSource(2, KEY_Z);
 
-        atlasSources.put("X", xSource);
-        atlasSources.put("Y", ySource);
-        atlasSources.put("Z", zSource);
+        atlasSources.put(KEY_X, xSource);
+        atlasSources.put(KEY_Y, ySource);
+        atlasSources.put(KEY_Z, zSource);
 
         SourceServices.getSourceService().register(xSource);
         SourceServices.getSourceService().register(ySource);
@@ -129,11 +129,11 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
     public List<String> getImagesKeys() {
         List<String> keys = new ArrayList<>();
         keys.add("Structure");
-        keys.add("Labels Border");
-        keys.add("X");
-        keys.add("Y");
-        keys.add("Z");
-        keys.add("Left Right");
+        keys.add(KEY_BORDERS);
+        keys.add(KEY_X);
+        keys.add(KEY_Y);
+        keys.add(KEY_Z);
+        keys.add(KEY_LEFT_RIGHT);
         return keys;
     }
 
@@ -159,7 +159,7 @@ public class WaxholmSpragueDawleyRatV4Map implements AtlasMap {
     public Double getImageMax(String key) {
         switch (key) {
             case "Structure": return (double) 80000;
-            case "Labels Border": return (double) 1024;
+            case KEY_BORDERS: return (double) 1024;
             default: return (double) 65535;
         }
     }

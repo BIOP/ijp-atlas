@@ -50,12 +50,12 @@ public class CompositeAtlasMap implements AtlasMap {
 
 	/** Keys that are always dropped from additional maps (no prefix, just skip). */
 	private static final Set<String> DROP_KEYS = new HashSet<>(Arrays.asList(
-			"X", "Y", "Z", "Left Right"
+			AtlasHelper.KEY_X, AtlasHelper.KEY_Y, AtlasHelper.KEY_Z, AtlasHelper.KEY_LEFT_RIGHT
 	));
 
 	/** All derived keys (dropped or prefixed from additional maps, kept only from principal at the end). */
 	private static final Set<String> DERIVED_KEYS = new HashSet<>(Arrays.asList(
-			"borders", "Label Borders", "Labels Border", "X", "Y", "Z", "Left Right"
+			AtlasHelper.KEY_BORDERS, AtlasHelper.KEY_X, AtlasHelper.KEY_Y, AtlasHelper.KEY_Z, AtlasHelper.KEY_LEFT_RIGHT
 	));
 
 	private final AtlasMap principalMap;
@@ -97,10 +97,10 @@ public class CompositeAtlasMap implements AtlasMap {
 				// Always drop coordinate and left/right sources
 				if (DROP_KEYS.contains(key)) continue;
 
-				String insertKey = key;
+				String insertKey = atlasName + key;
 				if (mergedImages.containsKey(key)) {
 					// Collision: prefix with atlas name
-					insertKey = atlasName + "_" + key;
+					insertKey = key+"_Copy";
 					logger.warning("CompositeAtlasMap: key '" + key + "' from atlas '"
 							+ atlasName + "' collides with existing key, renamed to '" + insertKey + "'");
 					if (mergedImages.containsKey(insertKey)) {

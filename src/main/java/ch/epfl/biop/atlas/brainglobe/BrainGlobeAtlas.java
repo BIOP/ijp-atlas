@@ -93,7 +93,7 @@ public class BrainGlobeAtlas implements Atlas {
 
 		// Build the map (BDV sources) from file paths
 		atlasMap = new BrainGlobeAtlasMap();
-		atlasMap.initializeFromApposeData(data);
+		atlasMap.initializeFromApposeData(data, BrainGlobeAppose.getContext());
 
 		// Extract metadata
 		atlasLink = data.getAtlasLink();

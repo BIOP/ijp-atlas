@@ -26,6 +26,7 @@ import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
 import ch.epfl.biop.atlas.struct.Atlas;
 import ch.epfl.biop.atlas.struct.AtlasHelper;
+import static ch.epfl.biop.atlas.struct.AtlasHelper.*;
 import ch.epfl.biop.atlas.struct.AtlasMap;
 import ch.epfl.biop.atlas.struct.AtlasNode;
 import ch.epfl.biop.atlas.struct.AtlasOntology;
@@ -374,8 +375,10 @@ public class AtlasFromSourcesHelper {
                 keyToImage.put(source.getSpimSource().getName(), source);
                 maximaPerChannel.put(source.getSpimSource().getName(), getMax((Source<RealType<?>>) source.getSpimSource()));
             }
-            if (label!=null) keyToImage.put("borders", SourceVoxelProcessor.getBorders(label));
-            if (label!=null) maximaPerChannel.put("borders", 256.0);
+            SourceAndConverter<?> borderSource = label != null ? SourceVoxelProcessor.getBorders(label) : null;
+            if (label!=null) maximaPerChannel.put(KEY_BORDERS, 256.0);
+
+            AtlasHelper.addDerivedSources(keyToImage, imageKeys, borderSource);
 
             AffineTransform3D at3D = new AffineTransform3D();
             sources[0].getSpimSource().getSourceTransform(0,0, at3D);
@@ -399,16 +402,8 @@ public class AtlasFromSourcesHelper {
 
             SourceAndConverter<?> leftRight = SourceHelper.createSourceAndConverter(s);
 
-            keyToImage.put("X", AtlasHelper.getCoordinateSource(0, "X"));
-            keyToImage.put("Y", AtlasHelper.getCoordinateSource(1, "Y"));
-            keyToImage.put("Z", AtlasHelper.getCoordinateSource(2, "Z"));
-            keyToImage.put("Left Right", leftRight);
-
-            if (label!=null) imageKeys.add("borders");
-            imageKeys.add("X");
-            imageKeys.add("Y");
-            imageKeys.add("Z");
-            imageKeys.add("Left Right");
+            keyToImage.put(KEY_LEFT_RIGHT, leftRight);
+            imageKeys.add(KEY_LEFT_RIGHT);
 
             labelImage = label;
             this.atlasPixelSizeInMillimeter = atlasPixelSizeInMillimeter;

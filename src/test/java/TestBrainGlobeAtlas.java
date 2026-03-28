@@ -21,6 +21,7 @@
  */
 import ch.epfl.biop.atlas.brainglobe.BrainGlobeAtlas;
 import ch.epfl.biop.atlas.struct.Atlas;
+import ch.epfl.biop.atlas.struct.AtlasHelper;
 import ch.epfl.biop.atlas.struct.AtlasMap;
 import ch.epfl.biop.atlas.struct.AtlasNode;
 import ch.epfl.biop.atlas.struct.AtlasOntology;
@@ -80,11 +81,11 @@ public class TestBrainGlobeAtlas {
 
 		// Check structural images exist
 		assert map.getStructuralImages().containsKey("reference") : "Missing reference image";
-		assert map.getStructuralImages().containsKey("borders") : "Missing borders image";
-		assert map.getStructuralImages().containsKey("X") : "Missing X coordinate image";
-		assert map.getStructuralImages().containsKey("Y") : "Missing Y coordinate image";
-		assert map.getStructuralImages().containsKey("Z") : "Missing Z coordinate image";
-		assert map.getStructuralImages().containsKey("Left Right") : "Missing Left Right image";
+		assert map.getStructuralImages().containsKey(AtlasHelper.KEY_BORDERS) : "Missing borders image";
+		assert map.getStructuralImages().containsKey(AtlasHelper.KEY_X) : "Missing X coordinate image";
+		assert map.getStructuralImages().containsKey(AtlasHelper.KEY_Y) : "Missing Y coordinate image";
+		assert map.getStructuralImages().containsKey(AtlasHelper.KEY_Z) : "Missing Z coordinate image";
+		assert map.getStructuralImages().containsKey(AtlasHelper.KEY_LEFT_RIGHT) : "Missing Left Right image";
 
 		// Check label image
 		assert map.getLabelImage() != null : "Label image is null";

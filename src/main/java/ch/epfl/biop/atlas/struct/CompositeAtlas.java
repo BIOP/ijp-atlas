@@ -50,10 +50,13 @@ public class CompositeAtlas implements Atlas {
 		this(principal, Arrays.asList(additionalAtlases));
 	}
 
+	final String name;
+
 	public CompositeAtlas(Atlas principal, List<Atlas> additionalAtlases) {
 		this.principal = principal;
 		this.additionalAtlases = new ArrayList<>(additionalAtlases);
 		this.compositeMap = new CompositeAtlasMap(principal, this.additionalAtlases);
+		this.name = "Composite";
 	}
 
 	@Override
@@ -93,7 +96,7 @@ public class CompositeAtlas implements Atlas {
 
 	@Override
 	public String getName() {
-		return principal.getName();
+		return name;
 	}
 
 	public Atlas getPrincipalAtlas() {

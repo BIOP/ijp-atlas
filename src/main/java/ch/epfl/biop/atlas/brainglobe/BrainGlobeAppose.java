@@ -112,6 +112,10 @@ public class BrainGlobeAppose {
 		BrainGlobeAppose.ctx = ctx;
 	}
 
+	public static Context getContext() {
+		return BrainGlobeAppose.ctx;
+	}
+
 	public BrainGlobeAppose() {
 		this.bgVersion = BG_VERSION;
 	}

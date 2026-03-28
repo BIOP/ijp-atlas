@@ -28,6 +28,7 @@ import bdv.util.volatiles.VolatileTypeMatcher;
 import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
 import ch.epfl.biop.atlas.struct.AtlasHelper;
+import static ch.epfl.biop.atlas.struct.AtlasHelper.*;
 import ch.epfl.biop.atlas.struct.AtlasMap;
 import ch.epfl.biop.source.SourceVoxelProcessor;
 import io.scif.config.SCIFIOConfig;
@@ -43,6 +44,7 @@ import net.imglib2.type.numeric.NumericType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.view.Views;
+import org.scijava.Context;
 import sc.fiji.bdvpg.source.SourceHelper;
 
 import java.net.URL;
@@ -78,7 +80,7 @@ public class BrainGlobeAtlasMap implements AtlasMap {
 	 *
 	 * @param data the atlas data from BrainGlobeAppose.fetchAtlas()
 	 */
-	public void initializeFromApposeData(BrainGlobeAppose.BrainGlobeAtlasData data) {
+	public void initializeFromApposeData(BrainGlobeAppose.BrainGlobeAtlasData data, Context ctx) {
 		this.atlasName = data.getAtlasName();
 
 		List<Double> resolution = data.getResolution(); // [z, y, x] in micrometers
@@ -94,35 +96,26 @@ public class BrainGlobeAtlasMap implements AtlasMap {
 		affine.scale(voxXMm, voxYMm, voxZMm);
 
 		// Reference image
-		SourceAndConverter<?> referenceSource = loadTiffAsSourceAndConverter(data.referencePath, affine, atlasName + "_reference");
+		SourceAndConverter<?> referenceSource = loadTiffAsSourceAndConverter(data.referencePath, affine, atlasName + "_reference", ctx);
 		structuralImages.put("reference", referenceSource);
 		imageKeys.add("reference");
 		maxValues.put("reference", 2*getMaxMiddlePlane(referenceSource));
 
 		// Additional reference channels
 		for (Map.Entry<String, String> entry : data.additionalReferencePaths.entrySet()) {
-			SourceAndConverter<?> source = loadTiffAsSourceAndConverter(entry.getValue(), affine, atlasName + "_" + entry.getKey());
+			SourceAndConverter<?> source = loadTiffAsSourceAndConverter(entry.getValue(), affine, atlasName + "_" + entry.getKey(), ctx);
 			structuralImages.put(entry.getKey(), source);
 			imageKeys.add(entry.getKey());
 			maxValues.put(entry.getKey(), 2*getMaxMiddlePlane(source));
 		}
 
 		// Annotation/label image
-		labelSource = loadTiffAsSourceAndConverter(data.annotationPath, affine, atlasName + "_annotation");
+		labelSource = loadTiffAsSourceAndConverter(data.annotationPath, affine, atlasName + "_annotation", ctx);
 
-		// Borders derived from label image
+		// Borders derived from label image, plus coordinate sources (X, Y, Z)
 		SourceAndConverter<?> bordersSource = SourceVoxelProcessor.getBorders(labelSource);
-		structuralImages.put("borders", bordersSource);
-		imageKeys.add("borders");
-		maxValues.put("borders", 256.0);
-
-		// Coordinate sources (X, Y, Z)
-		structuralImages.put("X", AtlasHelper.getCoordinateSource(0, "X"));
-		structuralImages.put("Y", AtlasHelper.getCoordinateSource(1, "Y"));
-		structuralImages.put("Z", AtlasHelper.getCoordinateSource(2, "Z"));
-		imageKeys.add("X");
-		imageKeys.add("Y");
-		imageKeys.add("Z");
+		maxValues.put(KEY_BORDERS, 256.0);
+		AtlasHelper.addDerivedSources(structuralImages, imageKeys, bordersSource);
 
 		// Left/Right indicator from hemispheres
 		SourceAndConverter<?> leftRightSac;
@@ -146,11 +139,11 @@ public class BrainGlobeAtlasMap implements AtlasMap {
 			leftRightSac = SourceHelper.createSourceAndConverter(hemispheresSource);
 		} else {
 			// Non-symmetric atlas: load hemispheres.tiff from disk
-			leftRightSac = loadTiffAsSourceAndConverter(data.hemispheresPath, affine, atlasName + "_hemispheres");
+			leftRightSac = loadTiffAsSourceAndConverter(data.hemispheresPath, affine, atlasName + "_hemispheres", ctx);
 		}
 
-		structuralImages.put("Left Right", leftRightSac);
-		imageKeys.add("Left Right");
+		structuralImages.put(KEY_LEFT_RIGHT, leftRightSac);
+		imageKeys.add(KEY_LEFT_RIGHT);
 	}
 
 	private<T extends RealType<T>> Double getMaxMiddlePlane(SourceAndConverter<?> source) {
@@ -175,11 +168,11 @@ public class BrainGlobeAtlasMap implements AtlasMap {
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static SourceAndConverter<?> loadTiffAsSourceAndConverter(String filePath, AffineTransform3D transform, String name) {
+	private static SourceAndConverter<?> loadTiffAsSourceAndConverter(String filePath, AffineTransform3D transform, String name, Context ctx) {
 		SCIFIOConfig config = new SCIFIOConfig()
 				.imgOpenerSetImgModes(SCIFIOConfig.ImgMode.CELL);
 
-		ImgOpener opener = new ImgOpener();
+		ImgOpener opener = new ImgOpener(ctx);
 		RandomAccessibleInterval rai = opener
 				.openImgs(filePath, config)
 				.get(0);

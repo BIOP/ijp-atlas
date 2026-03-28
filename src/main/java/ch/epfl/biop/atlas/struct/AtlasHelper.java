@@ -46,6 +46,36 @@ import java.util.function.BiConsumer;
  */
 public class AtlasHelper {
 
+    // Canonical keys for derived channels (borders, coordinates, left/right)
+    public static final String KEY_BORDERS = "borders";
+    public static final String KEY_X = "X";
+    public static final String KEY_Y = "Y";
+    public static final String KEY_Z = "Z";
+    public static final String KEY_LEFT_RIGHT = "Left Right";
+    public static final String KEY_LABEL = "Label";
+
+    /**
+     * Adds the standard derived coordinate sources (X, Y, Z) to the given map and key list.
+     * Optionally adds borders if a border source is provided.
+     *
+     * @param images       the structural images map to add sources to
+     * @param keys         the ordered key list to append to
+     * @param borderSource optional border source (null to skip)
+     */
+    public static void addDerivedSources(Map<String, SourceAndConverter<?>> images, List<String> keys,
+                                         SourceAndConverter<?> borderSource) {
+        if (borderSource != null) {
+            images.put(KEY_BORDERS, borderSource);
+            keys.add(KEY_BORDERS);
+        }
+        images.put(KEY_X, getCoordinateSource(0, KEY_X));
+        images.put(KEY_Y, getCoordinateSource(1, KEY_Y));
+        images.put(KEY_Z, getCoordinateSource(2, KEY_Z));
+        keys.add(KEY_X);
+        keys.add(KEY_Y);
+        keys.add(KEY_Z);
+    }
+
     public static List<Integer> getAllParentIds(AtlasOntology ontology, int label) {
         AtlasNode origin = ontology.getNodeFromId(label);
         ArrayList listOfParentLabels = new ArrayList();

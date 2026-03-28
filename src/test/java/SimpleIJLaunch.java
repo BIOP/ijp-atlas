@@ -21,11 +21,14 @@
  */
 import loci.common.DebugTools;
 import net.imagej.ImageJ;
+import sc.fiji.bdvpg.scijava.service.tree.SourceTree;
 
 public class SimpleIJLaunch {
     public static void main(String[] args) {
         DebugTools.setRootLevel("INFO");
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
+
+        SourceTree src;
     }
 }
