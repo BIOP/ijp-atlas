@@ -73,7 +73,7 @@ public class AtlasFromSourcesHelper {
             }
 
             @Override
-            public void initialize(URL mapURL, URL ontologyURL) throws Exception {
+            public void initialize(URL mapURL, URL ontologyURL) {
 
             }
 
@@ -179,7 +179,7 @@ public class AtlasFromSourcesHelper {
 
     public static AtlasOntology ontologyFromLabelImage(String atlasName, ImagePlus labelImage) {
         return new AtlasOntology() {
-            Map<Integer, AtlasNode> idToNode = new HashMap<>();
+            final Map<Integer, AtlasNode> idToNode = new HashMap<>();
             int rootId;
 
             @Override
@@ -188,7 +188,7 @@ public class AtlasFromSourcesHelper {
             }
 
             @Override
-            public void initialize() throws Exception {
+            public void initialize() {
                 HashSet<Integer> values = getUniquePixelValues(labelImage);
                 values.remove(0); // Causes issues otherwise
                 int rootIdTest = 1024;
@@ -197,7 +197,7 @@ public class AtlasFromSourcesHelper {
                 }
                 rootId = rootIdTest;
 
-                values.forEach(id -> {
+                values.forEach(id ->
                     idToNode.put(id, new AtlasNode() {
                         @Override
                         public Integer getId() {
@@ -231,8 +231,8 @@ public class AtlasFromSourcesHelper {
                         public String toString() {
                             return Integer.toString(id);
                         }
-                    });
-                });
+                    })
+                );
             }
 
             @Override

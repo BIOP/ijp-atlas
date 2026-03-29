@@ -32,7 +32,7 @@ import java.net.URL;
 
 public class DownloadProgressBar {
 
-    protected static Logger logger = LoggerFactory.getLogger(DownloadProgressBar.class);
+    protected static final Logger logger = LoggerFactory.getLogger(DownloadProgressBar.class);
 
     public static void urlToFile(URL url, File file, String frameTitle, long fileSize) throws Exception {
 
@@ -63,7 +63,7 @@ public class DownloadProgressBar {
             BufferedOutputStream bout = new BufferedOutputStream(fos, 1024 * 1024);
             byte[] data = new byte[1024 * 1024];
             long downloadedFileSize = 0;
-            int x = 0;
+            int x;
             while ((x = in.read(data, 0, 1024 * 1024)) >= 0) {
                 downloadedFileSize += x;
 

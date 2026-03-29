@@ -25,6 +25,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 
 public class AtlasLocationHelper {
 
@@ -43,7 +44,7 @@ public class AtlasLocationHelper {
             FileInputStream fisTargetFile;
             try {
                 fisTargetFile = new FileInputStream(f);
-                String targetFileStr = IOUtils.toString(fisTargetFile, "UTF-8");
+                String targetFileStr = IOUtils.toString(fisTargetFile, StandardCharsets.UTF_8);
                 File dir = new File(targetFileStr);
                 if (dir.exists()) {
                     return dir;

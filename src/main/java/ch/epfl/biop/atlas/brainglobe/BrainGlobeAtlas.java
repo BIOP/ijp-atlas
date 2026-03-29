@@ -57,7 +57,7 @@ public class BrainGlobeAtlas implements Atlas {
 	private BrainGlobeAtlasMap atlasMap;
 	private AtlasOntology ontology;
 	private String atlasLink = "";
-	private List<String> dois = new ArrayList<>();
+	private final List<String> dois = new ArrayList<>();
 
 	private Consumer<String> progressCallback;
 

@@ -78,14 +78,14 @@ public class AtlasHelper {
 
     public static List<Integer> getAllParentIds(AtlasOntology ontology, int label) {
         AtlasNode origin = ontology.getNodeFromId(label);
-        ArrayList listOfParentLabels = new ArrayList();
+        ArrayList<Integer> listOfParentLabels = new ArrayList<>();
         if (origin == null) {
             return listOfParentLabels;
         }
-        AtlasNode p = (AtlasNode) origin.parent();
+        AtlasNode p = origin.parent();
         while (p!=null) {
             listOfParentLabels.add(p.getId());
-            p = (AtlasNode) p.parent();
+            p = p.parent();
         }
         return listOfParentLabels;
     }
@@ -102,9 +102,7 @@ public class AtlasHelper {
     }
 
     public static SourceAndConverter<FloatType> getCoordinateSource(final int axis, String name) {
-        BiConsumer<RealLocalizable, FloatType > coordIndicator = (l, t ) -> {
-            t.set(l.getFloatPosition(axis));
-        };
+        BiConsumer<RealLocalizable, FloatType > coordIndicator = (l, t ) -> t.set(l.getFloatPosition(axis));
 
         FunctionRealRandomAccessible<FloatType> coordSource = new FunctionRealRandomAccessible(3,
                 coordIndicator,	FloatType::new);
@@ -117,9 +115,7 @@ public class AtlasHelper {
     }
 
     public static SourceAndConverter<FloatType> getCoordinateSourceInvOffset(final int axis, final float offset, String name) {
-        BiConsumer<RealLocalizable, FloatType > coordIndicator = (l, t ) -> {
-            t.set(offset-l.getFloatPosition(axis));
-        };
+        BiConsumer<RealLocalizable, FloatType > coordIndicator = (l, t ) -> t.set(offset-l.getFloatPosition(axis));
 
         FunctionRealRandomAccessible<FloatType> coordSource = new FunctionRealRandomAccessible(3,
                 coordIndicator,	FloatType::new);
@@ -132,9 +128,7 @@ public class AtlasHelper {
     }
 
     public static SourceAndConverter<FloatType> getCoordinateSourceOffset(final int axis, final float offset, String name) {
-        BiConsumer<RealLocalizable, FloatType > coordIndicator = (l, t ) -> {
-            t.set(offset+l.getFloatPosition(axis));
-        };
+        BiConsumer<RealLocalizable, FloatType > coordIndicator = (l, t ) -> t.set(offset+l.getFloatPosition(axis));
 
         FunctionRealRandomAccessible<FloatType> coordSource = new FunctionRealRandomAccessible(3,
                 coordIndicator,	FloatType::new);
@@ -175,12 +169,6 @@ public class AtlasHelper {
                 ontology.initialize();
                 fr.close();
                 return ontology;
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                return null;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
@@ -189,7 +177,7 @@ public class AtlasHelper {
     }
 
     public static class SerializableOntology implements AtlasOntology{
-        String name;
+        final String name;
         String namingProperty;
         SerializableAtlasNode root;
         transient Map<Integer, AtlasNode> idToAtlasNodeMap;
@@ -206,7 +194,7 @@ public class AtlasHelper {
         }
 
         @Override
-        public void initialize() throws Exception {
+        public void initialize() {
             idToAtlasNodeMap = AtlasHelper.buildIdToAtlasNodeMap(root);
         }
 
@@ -256,9 +244,7 @@ public class AtlasHelper {
             this.parent = parent;
             this.color = node.getColor();
             children = new ArrayList<>();
-            node.children().forEach(n -> {
-                children.add(new SerializableAtlasNode(n, this));
-            });
+            node.children().forEach(n -> children.add(new SerializableAtlasNode(n, this)));
         }
 
         @Override

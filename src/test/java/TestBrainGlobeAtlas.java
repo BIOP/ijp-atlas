@@ -20,7 +20,6 @@
  * #L%
  */
 import ch.epfl.biop.atlas.brainglobe.BrainGlobeAtlas;
-import ch.epfl.biop.atlas.struct.Atlas;
 import ch.epfl.biop.atlas.struct.AtlasHelper;
 import ch.epfl.biop.atlas.struct.AtlasMap;
 import ch.epfl.biop.atlas.struct.AtlasNode;
@@ -63,7 +62,7 @@ public class TestBrainGlobeAtlas {
 		System.out.println("\nOntology root: id=" + root.getId()
 				+ " name=" + root.data().get("name")
 				+ " children=" + root.children().size());
-		assert root.children().size() > 0 : "Root has no children";
+		assert !root.children().isEmpty() : "Root has no children";
 
 		// Test node lookup
 		AtlasNode rootLookup = ontology.getNodeFromId(root.getId());

@@ -55,7 +55,7 @@ public class AllenBrainAdultMouseAtlasCCF2017v3p1Command extends AllenAtlas impl
 	public void run() {
         try {
         	URL mapURL, ontologyURL;
-        	if ((mapUrl == null)||(mapUrl.equals(""))||(ontologyUrl == null)||(ontologyUrl.equals(""))) {
+        	if ((mapUrl == null)||(mapUrl.isEmpty())||(ontologyUrl == null)||(ontologyUrl.isEmpty())) {
 				mapURL = AllenBrainCCFv3p1Downloader.getMapUrl();
 				ontologyURL = AllenBrainCCFv3Downloader.getOntologyURL();
 			} else {

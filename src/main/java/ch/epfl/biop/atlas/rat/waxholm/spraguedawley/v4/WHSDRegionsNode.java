@@ -34,7 +34,7 @@ public class WHSDRegionsNode implements AtlasNode {
     final Map<String, String> properties;
     final List<AtlasNode> children;
     transient final Integer id;
-    int[] color;
+    final int[] color;
 
     public static String toStringKey = "abbreviation";
 
@@ -75,11 +75,6 @@ public class WHSDRegionsNode implements AtlasNode {
                 Integer.valueOf( colorStr.substring( 3, 5 ), 16 ),
                 Integer.valueOf( colorStr.substring( 5, 7 ), 16 ),255 };
     }
-
-    //@Override
-    //public Color getColor(AtlasNode node) {
-    //    return hex2Rgb(((WHSDRegionsNode) node).properties.get("color"));
-    //}
 
     @Override
     public int[] getColor() {

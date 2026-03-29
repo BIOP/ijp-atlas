@@ -20,11 +20,9 @@
  * #L%
  */
 import ch.epfl.biop.atlas.scijava.AtlasChooserCommand;
-import ch.epfl.biop.atlas.scijava.AtlasPreprocessor;
 import ch.epfl.biop.atlas.struct.Atlas;
 import ch.epfl.biop.atlas.struct.AtlasMap;
 import ch.epfl.biop.atlas.struct.AtlasOntology;
-import ij.IJ;
 import net.imagej.ImageJ;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;

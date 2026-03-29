@@ -30,7 +30,7 @@ import java.net.URL;
 
 public class AllenBrainCCFv3Downloader {
 
-    protected static Logger logger = LoggerFactory.getLogger(AllenBrainCCFv3Downloader.class);
+    protected static final Logger logger = LoggerFactory.getLogger(AllenBrainCCFv3Downloader.class);
 
     final public static String allen_mouse_brain_CCFv3_hdf5_v1 = "https://zenodo.org/record/4486659/files/ccf2017-mod65000-border-centered-mm-bc.h5?download=1";
     final public static long expected_hdf5_file_size = 3_089_344_351L;

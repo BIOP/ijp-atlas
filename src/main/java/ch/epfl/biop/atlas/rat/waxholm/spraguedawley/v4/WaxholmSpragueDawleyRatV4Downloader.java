@@ -31,7 +31,7 @@ import java.net.URL;
 
 public class WaxholmSpragueDawleyRatV4Downloader {
 
-    protected static Logger logger = LoggerFactory.getLogger(WaxholmSpragueDawleyRatV4Downloader.class);
+    protected static final Logger logger = LoggerFactory.getLogger(WaxholmSpragueDawleyRatV4Downloader.class);
 
     final public static String wh_sd_rat_v4_hdf5 = "https://zenodo.org/record/5644162/files/WHS_SD_rat_atlas_v4.h5?download=1";
     final public static String wh_sd_rat_v4_xml = "https://zenodo.org/record/5644162/files/WHS_SD_rat_atlas_v4.xml?download=1";

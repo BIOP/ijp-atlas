@@ -32,7 +32,7 @@ import java.net.URL;
 
 public class AllenBrainCCFv3p1Downloader {
 
-    protected static Logger logger = LoggerFactory.getLogger(AllenBrainCCFv3p1Downloader.class);
+    protected static final Logger logger = LoggerFactory.getLogger(AllenBrainCCFv3p1Downloader.class);
 
     final public static String allen_mouse_brain_CCFv3p1_xml_v1 = "https://zenodo.org/record/7492551/files/ccf2017-mod65000-border-centered-mm-bc.xml?download=1";
 

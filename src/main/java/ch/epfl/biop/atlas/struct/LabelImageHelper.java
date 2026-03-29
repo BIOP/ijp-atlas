@@ -43,15 +43,15 @@ public class LabelImageHelper {
                 .maxCacheSize( 100 );
 
         // Expand label image by one pixel to avoid out of bounds exception
-        final RandomAccessibleInterval<T> lblImgWithBorder =  Views.expandBorder(lblImg,new long[]{1,1,1});
+        final RandomAccessibleInterval<T> lblImgWithBorder =  Views.expandBorder(lblImg, 1,1,1);
 
         // Creates cached image factory of Type Byte
         final DiskCachedCellImgFactory<ByteType> factory = new DiskCachedCellImgFactory<>( new ByteType(), factoryOptions );
 
         // Creates shifted views by one pixel in each dimension
-        RandomAccessibleInterval<T> lblImgXShift = Views.translate(lblImgWithBorder,new long[]{1,0,0});
-        RandomAccessibleInterval<T> lblImgYShift = Views.translate(lblImgWithBorder,new long[]{0,1,0});
-        RandomAccessibleInterval<T> lblImgZShift = Views.translate(lblImgWithBorder,new long[]{0,0,1});
+        RandomAccessibleInterval<T> lblImgXShift = Views.translate(lblImgWithBorder, 1,0,0);
+        RandomAccessibleInterval<T> lblImgYShift = Views.translate(lblImgWithBorder, 0,1,0);
+        RandomAccessibleInterval<T> lblImgZShift = Views.translate(lblImgWithBorder, 0,0,1);
 
         // Creates border image, with cell Consumer method, which creates the image
         final Img<ByteType> borderLabel = factory.create( lblImg, cell -> {

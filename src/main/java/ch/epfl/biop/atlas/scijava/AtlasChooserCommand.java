@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+@SuppressWarnings("CanBeFinal")
 @Plugin(type = DynamicCommand.class, menuPath = "Plugins>BIOP>Atlas>Open Atlas",
         initializer = "init",
         iconPath = "/graphics/brainglobe.png")
@@ -198,7 +199,6 @@ public class AtlasChooserCommand extends DynamicCommand {
 
         final ArrayList<String> choices = new ArrayList<>();
         for (final Map.Entry<String, Supplier<Atlas>> entry : extraAtlases.entrySet()) {
-            //System.out.println(entry.getKey());
             choices.add(entry.getKey());
         }
         Collections.sort(choices);
@@ -217,7 +217,7 @@ public class AtlasChooserCommand extends DynamicCommand {
         input.setValue(this, iniValue);
     }
 
-    final static String BRAINGLOBE_OPTION = "Get BrainGlobe Atlases (web)...";
+    final static String BRAINGLOBE_OPTION = "Get BrainGlobe Atlases...";
 
     void checkBrainGlobe() {
         if (this.choice.equals(BRAINGLOBE_OPTION)) {
@@ -225,7 +225,7 @@ public class AtlasChooserCommand extends DynamicCommand {
                 UIService uiService = ctx.getService(UIService.class);
                 boolean headless = (uiService == null) || uiService.isHeadless();
 
-                JDialog waitDialog = null;
+                JDialog waitDialog;
                 if (!headless) {
                     waitDialog = new JDialog((java.awt.Frame) null, "Loading BrainGlobe Atlases", true);
                     JPanel panel = new JPanel();

@@ -21,7 +21,6 @@ package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2.command;
  * #L%
  */
 
-import ch.epfl.biop.atlas.mouse.allen.ccfv3p1.AllenBrainCCFv3p1Downloader;
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2.WaxholmSpragueDawleyRatV4p2Atlas;
 import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2.WaxholmSpragueDawleyRatV4p2Downloader;
 import ch.epfl.biop.atlas.struct.Atlas;
@@ -37,18 +36,10 @@ import java.net.URL;
 @Plugin(type = Command.class)//, menuPath = "Plugins>BIOP>Atlas>Rat (Waxholm Sprague Dawley V4p1)")
 public class WaxholmSpragueDawleyRatV4p2Command extends WaxholmSpragueDawleyRatV4p2Atlas implements Command {
 
-	/*public static String atlasName = "Rat - Waxholm Sprague Dawley V4p1";
+    public static final String keyPrefix = WaxholmSpragueDawleyRatV4p2Command.class.getName()+".";
 
-	public String toString() {
-		return atlasName;
-	}*/
-
-    public static String keyPrefix = WaxholmSpragueDawleyRatV4p2Command.class.getName()+".";
-
-    //@Parameter(label = "URL path to brain map data, leave empty for downloading and caching", persist = false)
     String mapUrl = Prefs.get(keyPrefix+"mapUrl","");
 
-    //@Parameter(label = "URL path to brain ontology data, leave empty for downloading and caching", persist = false)
     String ontologyUrl = Prefs.get(keyPrefix+"ontologyUrl","");
 
     @Parameter(type= ItemIO.OUTPUT)
@@ -58,7 +49,7 @@ public class WaxholmSpragueDawleyRatV4p2Command extends WaxholmSpragueDawleyRatV
     public void run() {
         try {
             URL mapURL, ontologyURL;
-            if ((mapUrl == null)||(mapUrl.equals(""))||(ontologyUrl == null)||(ontologyUrl.equals(""))) {
+            if ((mapUrl == null)||(mapUrl.isEmpty())||(ontologyUrl == null)||(ontologyUrl.isEmpty())) {
                 mapURL = WaxholmSpragueDawleyRatV4p2Downloader.getMapUrl();
                 ontologyURL = WaxholmSpragueDawleyRatV4p2Downloader.getOntologyURL();
             } else

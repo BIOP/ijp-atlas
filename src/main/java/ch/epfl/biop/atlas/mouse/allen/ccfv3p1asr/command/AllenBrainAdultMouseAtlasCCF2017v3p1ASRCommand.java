@@ -44,7 +44,7 @@ public class AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand extends AllenAtlasAS
 		return getName();
 	}
 	
-	public static String keyPrefix = AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand.class.getName()+".";
+	public static final String keyPrefix = AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand.class.getName()+".";
 
 	String mapUrl;// = Prefs.get(keyPrefix+"mapUrl","");
     String ontologyUrl;// = Prefs.get(keyPrefix+"ontologyUrl","");

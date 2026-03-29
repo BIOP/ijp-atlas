@@ -23,8 +23,6 @@ package ch.epfl.biop.atlas.custom;
 
 import ch.epfl.biop.atlas.scijava.AtlasChooserCommand;
 import ch.epfl.biop.atlas.struct.Atlas;
-import ch.epfl.biop.atlas.struct.AtlasHelper;
-import com.google.gson.GsonBuilder;
 import ij.ImagePlus;
 import org.scijava.command.Command;
 import org.scijava.object.ObjectService;

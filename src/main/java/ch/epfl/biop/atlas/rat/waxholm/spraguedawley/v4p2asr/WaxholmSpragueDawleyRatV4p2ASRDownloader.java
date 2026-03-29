@@ -31,10 +31,9 @@ import java.net.URL;
 
 public class WaxholmSpragueDawleyRatV4p2ASRDownloader {
 
-    protected static Logger logger = LoggerFactory.getLogger(WaxholmSpragueDawleyRatV4p2ASRDownloader.class);
+    protected static final Logger logger = LoggerFactory.getLogger(WaxholmSpragueDawleyRatV4p2ASRDownloader.class);
 
-    private static String xmlFileName = "WHS_SD_rat_atlas_v4p2asr.xml";
-    private static String hdf5FileName = "WHS_SD_rat_atlas_v4p1.h5";
+    private static final String hdf5FileName = "WHS_SD_rat_atlas_v4p1.h5";
 
     final public static String wh_sd_rat_v4p2_hdf5 = "https://zenodo.org/record/7492525/files/"+hdf5FileName+"?download=1";
     final public static String wh_sd_rat_v4p2_xml = "https://zenodo.org/records/14055690/files/WHS_SD_rat_atlas_v4p2asr.xml?download=1";
@@ -43,6 +42,7 @@ public class WaxholmSpragueDawleyRatV4p2ASRDownloader {
             AtlasLocationHelper.getAtlasCacheDir().mkdir();
         }
 
+        String xmlFileName = "WHS_SD_rat_atlas_v4p2asr.xml";
         File fileXml = new File(AtlasLocationHelper.getAtlasCacheDir(), xmlFileName);
         File fileHdf5 = new File(AtlasLocationHelper.getAtlasCacheDir(), hdf5FileName);
 
@@ -66,7 +66,7 @@ public class WaxholmSpragueDawleyRatV4p2ASRDownloader {
         URL returned = null;
 
         try {
-            if (dlXml) DownloadProgressBar.urlToFile(new URL(wh_sd_rat_v4p2_xml), new File(AtlasLocationHelper.getAtlasCacheDir(), xmlFileName), "Downloading "+xmlFileName, -1);
+            if (dlXml) DownloadProgressBar.urlToFile(new URL(wh_sd_rat_v4p2_xml), new File(AtlasLocationHelper.getAtlasCacheDir(), xmlFileName), "Downloading "+ xmlFileName, -1);
             if (dlH5) DownloadProgressBar.urlToFile(new URL(wh_sd_rat_v4p2_hdf5), new File(AtlasLocationHelper.getAtlasCacheDir(), hdf5FileName), "Downloading "+hdf5FileName, 601_500_109L);
 
             returned = fileXml.toURI().toURL();

@@ -31,11 +31,11 @@ import java.net.URL;
 
 public class WaxholmSpragueDawleyRatV4p2Downloader {
 
-    protected static Logger logger = LoggerFactory.getLogger(WaxholmSpragueDawleyRatV4p2Downloader.class);
+    protected static final Logger logger = LoggerFactory.getLogger(WaxholmSpragueDawleyRatV4p2Downloader.class);
 
-    private static String xmlFileName = "WHS_SD_rat_atlas_v4p2.xml";
-    private static String hdf5FileName = "WHS_SD_rat_atlas_v4p1.h5";
-    private static String ilfFileName = "WHS_SD_rat_atlas_v4_labels.ilf";
+    private static final String xmlFileName = "WHS_SD_rat_atlas_v4p2.xml";
+    private static final String hdf5FileName = "WHS_SD_rat_atlas_v4p1.h5";
+    private static final String ilfFileName = "WHS_SD_rat_atlas_v4_labels.ilf";
 
     final public static String wh_sd_rat_v4p2_hdf5 = "https://zenodo.org/record/7492525/files/"+hdf5FileName+"?download=1";
     final public static String wh_sd_rat_v4p2_xml = "https://zenodo.org/record/8092060/files/"+xmlFileName+"?download=1";

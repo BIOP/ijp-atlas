@@ -57,9 +57,7 @@ public class AtlasPostProcessor extends AbstractPostprocessorPlugin {
 				} else {
 					if (!os.getObjects(Atlas.class).contains(ba)) { // Avoids double addition // TODO : avoid putting multiple times the same atlas
 						os.addObject(ba);
-						ba.getMap().getStructuralImages().forEach((key, source) -> {
-							source_service.register(source);
-						});
+						ba.getMap().getStructuralImages().forEach((key, source) -> source_service.register(source));
 						source_service.register(ba.getMap().getLabelImage());
 					}
 				}

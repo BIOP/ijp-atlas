@@ -26,11 +26,11 @@ import java.util.List;
 
 public interface Atlas {
 
-    // An atlas is : an ontology and an xml hdf5 data source
+    // An atlas is : an ontology and an XML HDF5 data source
 
     //--------------------------- Source
-    // Sources contains the xml hdf5 label image, leaves only data
-    // Source -> then several imaging modalities Different visualisation
+    // Sources contains the XML HDF5 label image, leaves only data
+    // Source -> then several imaging modalities Different visualization
     AtlasMap getMap();
     
     //--------------------------- Ontology

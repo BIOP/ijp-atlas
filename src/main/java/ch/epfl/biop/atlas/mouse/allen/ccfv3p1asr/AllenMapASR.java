@@ -30,7 +30,6 @@ import net.imglib2.RealLocalizable;
 import net.imglib2.position.FunctionRealRandomAccessible;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
-import net.imglib2.type.numeric.real.FloatType;
 import sc.fiji.bdvpg.service.SourceServices;
 import sc.fiji.bdvpg.source.SourceHelper;
 import sc.fiji.bdvpg.dataset.importer.XMLToDatasetImporter;
@@ -50,7 +49,7 @@ public class AllenMapASR implements AtlasMap {
 
 	public String name;
 
-	// Original source order in xml / hdf5 file
+	// Original source order in XML / HDF5 file
 	final static private int NisslSetupId = 0;
 	final static private int LabelBorberSetupId = 1;
 	final static private int AraSetupId = 2;

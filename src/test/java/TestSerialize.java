@@ -19,8 +19,9 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-import ch.epfl.biop.atlas.mouse.allen.ccfv3.command.AllenBrainAdultMouseAtlasCCF2017Command;
-import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4.command.WaxholmSpragueDawleyRatV4Command;
+
+import ch.epfl.biop.atlas.mouse.allen.ccfv3p1asr.command.AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand;
+import ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4p2.command.WaxholmSpragueDawleyRatV4p2Command;
 import ch.epfl.biop.atlas.struct.Atlas;
 import ch.epfl.biop.atlas.struct.AtlasHelper;
 import ch.epfl.biop.atlas.struct.AtlasOntology;
@@ -30,14 +31,14 @@ public class TestSerialize {
     public static void main(String[] args) throws Exception{
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
-        Atlas mouse_atlas = (Atlas) ij.command().run(AllenBrainAdultMouseAtlasCCF2017Command.class, true).get().getOutput("ba");
+        Atlas mouse_atlas = (Atlas) ij.command().run(AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand.class, true).get().getOutput("ba");
 
         AtlasHelper
                 .saveOntologyToJsonFile(
                         mouse_atlas.getOntology(),
                         "src/test/resources/ontology_ccfv3_output.json");
 
-        Atlas rat_atlas = (Atlas) ij.command().run(WaxholmSpragueDawleyRatV4Command.class, true).get().getOutput("ba");
+        Atlas rat_atlas = (Atlas) ij.command().run(WaxholmSpragueDawleyRatV4p2Command.class, true).get().getOutput("ba");
 
         AtlasHelper
                 .saveOntologyToJsonFile(

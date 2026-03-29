@@ -216,11 +216,11 @@ public class BrainGlobeAppose {
 										IJ.showStatus(fetchAtlasTask.getStatusMessage());
 									}
 								case UPDATE:
-									if (fetchAtlasTask.getProgressMaximum() <= 0) {
-										fetchAtlasTask.setProgressMaximum(event.maximum);
-										IJ.showStatus("Loading "+atlasName);
-									}
 									if (fetchAtlasTask!=null) {
+										if (fetchAtlasTask.getProgressMaximum() <= 0) {
+											fetchAtlasTask.setProgressMaximum(event.maximum);
+											IJ.showStatus("Loading "+atlasName);
+										}
 										fetchAtlasTask.setProgressValue(event.current);
 										IJ.showProgress((int)(event.current/1024), (int)(event.maximum/1024));
 									}

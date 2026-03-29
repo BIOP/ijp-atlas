@@ -37,7 +37,7 @@ public class AllenOntologyJson {
     int total_rows;
     List<AllenBrainRegion> msg;
 
-    public class AllenBrainRegion {
+    public static class AllenBrainRegion {
         int id;
         int atlas_id;
         int ontology_id;

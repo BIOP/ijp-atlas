@@ -73,7 +73,7 @@ public class CompositeAtlas implements Atlas {
 	}
 
 	@Override
-	public void initialize(URL mapURL, URL ontologyURL) throws Exception {
+	public void initialize(URL mapURL, URL ontologyURL) {
 		throw new UnsupportedOperationException(
 				"CompositeAtlas cannot be initialized via URLs. " +
 				"All constituent atlases must be initialized before constructing the composite.");

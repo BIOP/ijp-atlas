@@ -52,9 +52,7 @@ public class AllenBrainRegionsNode implements AtlasNode {
         properties = Collections.unmodifiableMap(mutableMap);
         children = new ArrayList<>(abr.children.size());
         color = hex2Rgba(abr.color_hex_triplet);
-        abr.children.forEach(child_abr -> {
-            children.add(new AllenBrainRegionsNode(child_abr, this));
-        });
+        abr.children.forEach(child_abr -> children.add(new AllenBrainRegionsNode(child_abr, this)));
     }
 
     @Override

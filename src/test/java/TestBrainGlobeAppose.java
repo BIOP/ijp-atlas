@@ -50,7 +50,7 @@ public class TestBrainGlobeAppose {
 		for (String name : atlases) {
 			System.out.println("  - " + name);
 		}
-		assert atlases.size() > 0 : "Expected at least one atlas";
+		assert !atlases.isEmpty() : "Expected at least one atlas";
 		System.out.println("PASSED\n");
 
 		// --- Test 2: Fetch a small test atlas ---
@@ -95,9 +95,8 @@ public class TestBrainGlobeAppose {
 		System.out.println("Root node name: " + root.data().get("name"));
 		System.out.println("Root has " + root.children().size() + " children");
 
-		assert root != null : "Root node is null";
 		assert root.getId() != null : "Root id is null";
-		assert root.children().size() > 0 : "Root has no children";
+		assert !root.children().isEmpty() : "Root has no children";
 
 		System.out.println("PASSED\n");
 
