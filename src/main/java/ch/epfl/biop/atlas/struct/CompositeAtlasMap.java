@@ -83,10 +83,10 @@ public class CompositeAtlasMap implements AtlasMap {
 
 		// 1. Add principal structural sources, prefixed with atlas name
 		for (String key : principalStructuralKeys) {
-			SourceAndConverter<?> sac = principalMap.getStructuralImages().get(key);
-			if (sac != null) {
+			SourceAndConverter<?> source = principalMap.getStructuralImages().get(key);
+			if (source != null) {
 				String insertKey = principalName + " - " + key;
-				mergedImages.put(insertKey, sac);
+				mergedImages.put(insertKey, source);
 				mergedKeys.add(insertKey);
 				keyToSourceMap.put(insertKey, principalMap);
 				keyToOriginalKey.put(insertKey, key);
@@ -108,9 +108,9 @@ public class CompositeAtlasMap implements AtlasMap {
 					continue;
 				}
 
-				SourceAndConverter<?> sac = additionalMap.getStructuralImages().get(key);
-				if (sac != null) {
-					mergedImages.put(insertKey, sac);
+				SourceAndConverter<?> source = additionalMap.getStructuralImages().get(key);
+				if (source != null) {
+					mergedImages.put(insertKey, source);
 					mergedKeys.add(insertKey);
 					keyToSourceMap.put(insertKey, additionalMap);
 					keyToOriginalKey.put(insertKey, key);
@@ -120,9 +120,9 @@ public class CompositeAtlasMap implements AtlasMap {
 
 		// 3. Append principal derived sources at the end (no prefix)
 		for (String key : principalDerivedKeys) {
-			SourceAndConverter<?> sac = principalMap.getStructuralImages().get(key);
-			if (sac != null) {
-				mergedImages.put(key, sac);
+			SourceAndConverter<?> source = principalMap.getStructuralImages().get(key);
+			if (source != null) {
+				mergedImages.put(key, source);
 				mergedKeys.add(key);
 				keyToSourceMap.put(key, principalMap);
 				keyToOriginalKey.put(key, key);

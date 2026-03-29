@@ -116,7 +116,7 @@ public class AtlasHelper {
         return SourceHelper.createSourceAndConverter(s);
     }
 
-    public static SourceAndConverter<FloatType> getCoordinateSacInvOffset(final int axis, final float offset, String name) {
+    public static SourceAndConverter<FloatType> getCoordinateSourceInvOffset(final int axis, final float offset, String name) {
         BiConsumer<RealLocalizable, FloatType > coordIndicator = (l, t ) -> {
             t.set(offset-l.getFloatPosition(axis));
         };
@@ -131,7 +131,7 @@ public class AtlasHelper {
         return SourceHelper.createSourceAndConverter(s);
     }
 
-    public static SourceAndConverter<FloatType> getCoordinateSacOffset(final int axis, final float offset, String name) {
+    public static SourceAndConverter<FloatType> getCoordinateSourceOffset(final int axis, final float offset, String name) {
         BiConsumer<RealLocalizable, FloatType > coordIndicator = (l, t ) -> {
             t.set(offset+l.getFloatPosition(axis));
         };

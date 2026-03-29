@@ -118,7 +118,7 @@ public class BrainGlobeAtlasMap implements AtlasMap {
 		AtlasHelper.addDerivedSources(structuralImages, imageKeys, bordersSource);
 
 		// Left/Right indicator from hemispheres
-		SourceAndConverter<?> leftRightSac;
+		SourceAndConverter<?> leftRightSource;
 		if (data.isSymmetric()) {
 			// Symmetric atlas: generate hemispheres procedurally by splitting along the frontal axis.
 			// Fill with 2, then set the second half (from round(size/2) onward) to 1.
@@ -136,13 +136,13 @@ public class BrainGlobeAtlasMap implements AtlasMap {
 					new FinalInterval(shape));
 			Source<UnsignedByteType> hemispheresSource = new RandomAccessibleIntervalSource<>(
 					hemispheresRai, new UnsignedByteType(), affine, atlasName + "_hemispheres");
-			leftRightSac = SourceHelper.createSourceAndConverter(hemispheresSource);
+			leftRightSource = SourceHelper.createSourceAndConverter(hemispheresSource);
 		} else {
 			// Non-symmetric atlas: load hemispheres.tiff from disk
-			leftRightSac = loadTiffAsSourceAndConverter(data.hemispheresPath, affine, atlasName + "_hemispheres", ctx);
+			leftRightSource = loadTiffAsSourceAndConverter(data.hemispheresPath, affine, atlasName + "_hemispheres", ctx);
 		}
 
-		structuralImages.put(KEY_LEFT_RIGHT, leftRightSac);
+		structuralImages.put(KEY_LEFT_RIGHT, leftRightSource);
 		imageKeys.add(KEY_LEFT_RIGHT);
 	}
 
