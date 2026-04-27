@@ -39,6 +39,7 @@ import java.util.function.Consumer;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apposed.appose.builder.PixiBuilder;
+import ch.epfl.biop.atlas.AtlasLocationHelper;
 import org.scijava.Context;
 import org.scijava.task.TaskService;
 
@@ -104,17 +105,6 @@ public class BrainGlobeAppose {
 	// Callbacks for environment build progress
 	private Consumer<String> progressCallback;
 	private Consumer<String> errorCallback;
-
-
-	private static Context ctx; // Used for monitoring download time
-
-	public static void setContext(Context ctx) {
-		BrainGlobeAppose.ctx = ctx;
-	}
-
-	public static Context getContext() {
-		return BrainGlobeAppose.ctx;
-	}
 
 	public BrainGlobeAppose() {
 		this.bgVersion = BG_VERSION;
@@ -199,7 +189,8 @@ public class BrainGlobeAppose {
 			String script = fetchAtlasScript(atlasName);
 
 			org.scijava.task.Task fetchAtlasTask;
-			if (ctx !=null) {
+			Context ctx = AtlasLocationHelper.getContext();
+			if (ctx != null) {
 				fetchAtlasTask = ctx.getService(TaskService.class).createTask("Fetching Atlas " + atlasName);
 			} else {
 				fetchAtlasTask = null;

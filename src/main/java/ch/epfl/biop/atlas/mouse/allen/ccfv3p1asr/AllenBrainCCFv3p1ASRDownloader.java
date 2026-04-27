@@ -23,7 +23,6 @@ package ch.epfl.biop.atlas.mouse.allen.ccfv3p1asr;
 
 import ch.epfl.biop.atlas.AtlasLocationHelper;
 import ch.epfl.biop.atlas.mouse.allen.ccfv3.AllenBrainCCFv3Downloader;
-import ch.epfl.biop.atlas.mouse.allen.ccfv3.DownloadProgressBar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +40,7 @@ public class AllenBrainCCFv3p1ASRDownloader {
             AtlasLocationHelper.getAtlasCacheDir().mkdir();
         }
 
+        //System.out.println(AtlasLocationHelper.getAtlasCacheDir());
         File fileXml = new File(AtlasLocationHelper.getAtlasCacheDir(), "mouse_brain_ccfv3p1asr.xml");
         File fileHdf5 = new File(AtlasLocationHelper.getAtlasCacheDir(), "ccf2017-mod65000-border-centered-mm-bc.h5");
 
@@ -64,8 +64,8 @@ public class AllenBrainCCFv3p1ASRDownloader {
         URL returned = null;
 
         try {
-            if (dlXml) DownloadProgressBar.urlToFile(new URL(allen_mouse_brain_CCFv3p1asr_xml_v1), new File(AtlasLocationHelper.getAtlasCacheDir(), "mouse_brain_ccfv3p1asr.xml"), "Downloading mouse_brain_ccfv3p1asr.xml", -1);
-            if (dlH5) DownloadProgressBar.urlToFile(new URL(AllenBrainCCFv3Downloader.allen_mouse_brain_CCFv3_hdf5_v1), new File(AtlasLocationHelper.getAtlasCacheDir(), "ccf2017-mod65000-border-centered-mm-bc.h5"), "Downloading mouse_brain_ccfv3.h5", 3_089_344_351L);
+            if (dlXml) AtlasLocationHelper.download(new URL(allen_mouse_brain_CCFv3p1asr_xml_v1), new File(AtlasLocationHelper.getAtlasCacheDir(), "mouse_brain_ccfv3p1asr.xml"), "Downloading mouse_brain_ccfv3p1asr.xml", -1);
+            if (dlH5) AtlasLocationHelper.download(new URL(AllenBrainCCFv3Downloader.allen_mouse_brain_CCFv3_hdf5_v1), new File(AtlasLocationHelper.getAtlasCacheDir(), "ccf2017-mod65000-border-centered-mm-bc.h5"), "Downloading mouse_brain_ccfv3.h5", 3_089_344_351L);
 
             returned = fileXml.toURI().toURL();
         } catch (Exception e) {

@@ -21,6 +21,7 @@
  */
 package ch.epfl.biop.atlas.brainglobe;
 
+import ch.epfl.biop.atlas.AtlasLocationHelper;
 import ch.epfl.biop.atlas.struct.Atlas;
 import ch.epfl.biop.atlas.struct.AtlasHelper;
 import ch.epfl.biop.atlas.struct.AtlasMap;
@@ -93,7 +94,7 @@ public class BrainGlobeAtlas implements Atlas {
 
 		// Build the map (BDV sources) from file paths
 		atlasMap = new BrainGlobeAtlasMap();
-		atlasMap.initializeFromApposeData(data, BrainGlobeAppose.getContext());
+		atlasMap.initializeFromApposeData(data, AtlasLocationHelper.getContext());
 
 		// Extract metadata
 		atlasLink = data.getAtlasLink();

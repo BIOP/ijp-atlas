@@ -21,15 +21,35 @@
  */
 package ch.epfl.biop.atlas;
 
+import ij.IJ;
 import org.apache.commons.io.IOUtils;
+import org.scijava.Context;
+import org.scijava.task.TaskService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 public class AtlasLocationHelper {
 
-    //public static File cachedSampleDir = getAtlasCacheDir();//
+    protected static final Logger logger = LoggerFactory.getLogger(AtlasLocationHelper.class);
+
+    private static Context ctx;
+
+    public static void setContext(Context ctx) {
+        AtlasLocationHelper.ctx = ctx;
+    }
+
+    public static Context getContext() {
+        return ctx;
+    }
 
     public static File defaultCacheDir = null;
 
@@ -63,5 +83,70 @@ public class AtlasLocationHelper {
         }
         // Default behaviour
         return new File(System.getProperty("user.home"),"cached_atlas");
+    }
+
+    /**
+     * Downloads a file from a URL with progress reported via SciJava TaskService
+     * and ImageJ status/progress bar. Falls back to logging-only if no Context is set.
+     *
+     * @param url          the URL to download from
+     * @param file         the destination file
+     * @param taskName     display name for the progress task
+     * @param expectedSize expected file size in bytes, or -1 if unknown
+     * @throws Exception if the download fails
+     */
+    public static void download(URL url, File file, String taskName, long expectedSize) throws Exception {
+        org.scijava.task.Task downloadTask = null;
+        if (ctx != null) {
+            try {
+                downloadTask = ctx.getService(TaskService.class).createTask(taskName);
+                downloadTask.start();
+            } catch (Exception e) {
+                logger.warn("Could not create task for download progress", e);
+            }
+        }
+
+        try {
+            HttpURLConnection httpConnection = (HttpURLConnection) (url.openConnection());
+            httpConnection.setRequestProperty("Accept", "*/*");
+
+            int responseCode = httpConnection.getResponseCode();
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                throw new RuntimeException("Server returned HTTP response code: " + responseCode + " for URL: " + url);
+            }
+
+            long completeFileSize = httpConnection.getContentLengthLong();
+            logger.info("File Size : " + completeFileSize);
+
+            if (completeFileSize == -1) completeFileSize = expectedSize;
+
+            if (downloadTask != null && completeFileSize > 0) {
+                downloadTask.setProgressMaximum(completeFileSize);
+                IJ.showStatus(taskName);
+            }
+
+            BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
+            FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
+            BufferedOutputStream bout = new BufferedOutputStream(fos, 1024 * 1024);
+            byte[] data = new byte[1024 * 1024];
+            long downloadedFileSize = 0;
+            int x;
+            while ((x = in.read(data, 0, 1024 * 1024)) >= 0) {
+                downloadedFileSize += x;
+
+                if (downloadTask != null && completeFileSize > 0) {
+                    downloadTask.setProgressValue(downloadedFileSize);
+                    IJ.showProgress((int) (downloadedFileSize / 1024), (int) (completeFileSize / 1024));
+                }
+
+                bout.write(data, 0, x);
+            }
+            bout.close();
+            in.close();
+        } finally {
+            if (downloadTask != null) {
+                downloadTask.finish();
+            }
+        }
     }
 }

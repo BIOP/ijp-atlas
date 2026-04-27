@@ -65,8 +65,8 @@ public class AllenBrainCCFv3Downloader {
         URL returned = null;
 
         try {
-            if (dlXml) DownloadProgressBar.urlToFile(new URL(allen_mouse_brain_CCFv3_xml_v1), new File(AtlasLocationHelper.getAtlasCacheDir(), "mouse_brain_ccfv3.xml"), "Downloading mouse_brain_ccfv3.xml", -1);
-            if (dlH5) DownloadProgressBar.urlToFile(new URL(allen_mouse_brain_CCFv3_hdf5_v1), new File(AtlasLocationHelper.getAtlasCacheDir(), "ccf2017-mod65000-border-centered-mm-bc.h5"), "Downloading mouse_brain_ccfv3.h5", 3_089_344_351L);
+            if (dlXml) AtlasLocationHelper.download(new URL(allen_mouse_brain_CCFv3_xml_v1), new File(AtlasLocationHelper.getAtlasCacheDir(), "mouse_brain_ccfv3.xml"), "Downloading mouse_brain_ccfv3.xml", -1);
+            if (dlH5) AtlasLocationHelper.download(new URL(allen_mouse_brain_CCFv3_hdf5_v1), new File(AtlasLocationHelper.getAtlasCacheDir(), "ccf2017-mod65000-border-centered-mm-bc.h5"), "Downloading mouse_brain_ccfv3.h5", 3_089_344_351L);
 
             returned = fileXml.toURI().toURL();
         } catch (Exception e) {
@@ -86,7 +86,7 @@ public class AllenBrainCCFv3Downloader {
         URL returned = null;
 
         try {
-            if (dlOntology) DownloadProgressBar.urlToFile(new URL(allen_mouse_brain_CCFv3_ontology_v1), new File(AtlasLocationHelper.getAtlasCacheDir(), "1.json"), "Downloading ontology", -1);
+            if (dlOntology) AtlasLocationHelper.download(new URL(allen_mouse_brain_CCFv3_ontology_v1), new File(AtlasLocationHelper.getAtlasCacheDir(), "1.json"), "Downloading ontology", -1);
 
             returned = ontologyFile.toURI().toURL();
         } catch (Exception e) {

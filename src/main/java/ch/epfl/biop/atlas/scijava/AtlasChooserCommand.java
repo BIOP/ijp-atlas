@@ -21,6 +21,7 @@
  */
 package ch.epfl.biop.atlas.scijava;
 
+import ch.epfl.biop.atlas.AtlasLocationHelper;
 import ch.epfl.biop.atlas.brainglobe.BrainGlobeAppose;
 import ch.epfl.biop.atlas.brainglobe.BrainGlobeAtlas;
 import ch.epfl.biop.atlas.mouse.allen.ccfv3p1.command.AllenBrainAdultMouseAtlasCCF2017v3p1Command;
@@ -173,7 +174,7 @@ public class AtlasChooserCommand extends DynamicCommand {
         if (brainGlobeRegistered) return;
         brainGlobeRegistered = true;
 
-        BrainGlobeAppose.setContext(ctx);
+        AtlasLocationHelper.setContext(ctx);
 
         List<String> bgAtlases = BrainGlobeAppose.getAvailableAtlasNames();
         for (String bgName : bgAtlases) {
@@ -196,6 +197,7 @@ public class AtlasChooserCommand extends DynamicCommand {
     protected void init() {
 
         String iniValue = this.choice;
+        AtlasLocationHelper.setContext(ctx);
 
         final ArrayList<String> choices = new ArrayList<>();
         for (final Map.Entry<String, Supplier<Atlas>> entry : extraAtlases.entrySet()) {

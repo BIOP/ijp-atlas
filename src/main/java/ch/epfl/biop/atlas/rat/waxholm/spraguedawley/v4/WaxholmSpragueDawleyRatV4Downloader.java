@@ -22,7 +22,6 @@
 package ch.epfl.biop.atlas.rat.waxholm.spraguedawley.v4;
 
 import ch.epfl.biop.atlas.AtlasLocationHelper;
-import ch.epfl.biop.atlas.mouse.allen.ccfv3.DownloadProgressBar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,8 +64,8 @@ public class WaxholmSpragueDawleyRatV4Downloader {
         URL returned = null;
 
         try {
-            if (dlXml) DownloadProgressBar.urlToFile(new URL(wh_sd_rat_v4_xml), new File(AtlasLocationHelper.getAtlasCacheDir(), "WHS_SD_rat_atlas_v4.xml"), "Downloading WHS_SD_rat_atlas_v4.xml", -1);
-            if (dlH5) DownloadProgressBar.urlToFile(new URL(wh_sd_rat_v4_hdf5), new File(AtlasLocationHelper.getAtlasCacheDir(), "WHS_SD_rat_atlas_v4.h5"), "Downloading WHS_SD_rat_atlas_v4.h5", 499_413_218L);
+            if (dlXml) AtlasLocationHelper.download(new URL(wh_sd_rat_v4_xml), new File(AtlasLocationHelper.getAtlasCacheDir(), "WHS_SD_rat_atlas_v4.xml"), "Downloading WHS_SD_rat_atlas_v4.xml", -1);
+            if (dlH5) AtlasLocationHelper.download(new URL(wh_sd_rat_v4_hdf5), new File(AtlasLocationHelper.getAtlasCacheDir(), "WHS_SD_rat_atlas_v4.h5"), "Downloading WHS_SD_rat_atlas_v4.h5", 499_413_218L);
 
             returned = fileXml.toURI().toURL();
         } catch (Exception e) {
@@ -86,7 +85,7 @@ public class WaxholmSpragueDawleyRatV4Downloader {
         URL returned = null;
 
         try {
-            if (dlOntology) DownloadProgressBar.urlToFile(new URL(wh_sd_rat_v4_ontology), new File(AtlasLocationHelper.getAtlasCacheDir(), "WHS_SD_rat_atlas_v4_labels.ilf"), "Downloading ontology", -1);
+            if (dlOntology) AtlasLocationHelper.download(new URL(wh_sd_rat_v4_ontology), new File(AtlasLocationHelper.getAtlasCacheDir(), "WHS_SD_rat_atlas_v4_labels.ilf"), "Downloading ontology", -1);
 
             returned = ontologyFile.toURI().toURL();
         } catch (Exception e) {
