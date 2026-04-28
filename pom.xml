@@ -106,9 +106,9 @@
 		<package-name>ch.epfl.biop.atlas</package-name>
 		<license.licenseName>gpl_v3</license.licenseName>
 		<license.copyrightOwners>EPFL</license.copyrightOwners>
-		<bigdataviewer-playground.version>0.20.3</bigdataviewer-playground.version>
+		<bigdataviewer-playground.version>0.20.4</bigdataviewer-playground.version>
 		<bigdataviewer-biop-tools.version>0.20.6</bigdataviewer-biop-tools.version>
-		<bigdataviewer-image-loaders.version>0.20.1</bigdataviewer-image-loaders.version>
+		<bigdataviewer-image-loaders.version>0.20.2</bigdataviewer-image-loaders.version>
 		<appose.version>0.11.0</appose.version>
 		<imglib2-appose.version>0.9.0</imglib2-appose.version>
 
