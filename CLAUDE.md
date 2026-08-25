@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build Commands
 
 ```bash
-# Build the project (requires Java 8)
+# Build the project (requires Java 21)
 mvn clean install
 
 # Build without tests
