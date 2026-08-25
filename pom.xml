@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>40.0.0</version>
+		<version>45.1.0</version>
 		<relativePath />
 	</parent>
 
@@ -106,10 +106,10 @@
 		<package-name>ch.epfl.biop.atlas</package-name>
 		<license.licenseName>gpl_v3</license.licenseName>
 		<license.copyrightOwners>EPFL</license.copyrightOwners>
-		<bigdataviewer-playground.version>0.20.4</bigdataviewer-playground.version>
-		<bigdataviewer-biop-tools.version>0.20.6</bigdataviewer-biop-tools.version>
-		<bigdataviewer-image-loaders.version>0.20.2</bigdataviewer-image-loaders.version>
-		<appose.version>0.11.0</appose.version>
+		<bigdataviewer-playground.version>0.23.1</bigdataviewer-playground.version>
+		<bigdataviewer-biop-tools.version>0.23.0</bigdataviewer-biop-tools.version>
+		<bigdataviewer-image-loaders.version>0.23.1</bigdataviewer-image-loaders.version>
+		<appose.version>0.12.0</appose.version>
 		<imglib2-appose.version>0.9.0</imglib2-appose.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
