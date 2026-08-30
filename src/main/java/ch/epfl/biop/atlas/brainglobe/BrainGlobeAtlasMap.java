@@ -37,9 +37,11 @@ import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.Volatile;
 import net.imglib2.converter.Converter;
+import net.imglib2.display.ColorConverter;
 import net.imglib2.position.FunctionRandomAccessible;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
@@ -64,6 +66,29 @@ import java.util.Map;
  * - axis 2 = Left-Right
  */
 public class BrainGlobeAtlasMap implements AtlasMap {
+
+	/**
+	 * Default colour given to each structural channel, in display order: the
+	 * reference first, then the additional references.
+	 * <p>
+	 * BDV composites channels additively over black, so each colour has to carry
+	 * enough luminance on its own — which rules out the darker entries of the usual
+	 * print-oriented colour-blind palettes. No channel is left white: an atlas is
+	 * displayed over the section being aligned to it, and a white channel saturates
+	 * every other one out of the picture. Amber and blue come first because that
+	 * pair stays separable under protanopia, deuteranopia and tritanopia alike;
+	 * magenta and green extend it as far as is honestly distinguishable. Beyond
+	 * that, colour stops carrying information and every remaining channel is grey.
+	 */
+	private static final int[] CHANNEL_COLORS = {
+			0xFFFFB000, // amber
+			0xFF4DA6FF, // blue
+			0xFFDC267F, // magenta
+			0xFF00C08B, // green
+	};
+
+	/** Colour used once {@link #CHANNEL_COLORS} is exhausted */
+	private static final int EXTRA_CHANNEL_COLOR = 0xFFB0B0B0;
 
 	private final Map<String, SourceAndConverter<?>> structuralImages = new HashMap<>();
 	private final List<String> imageKeys = new ArrayList<>();
@@ -100,13 +125,16 @@ public class BrainGlobeAtlasMap implements AtlasMap {
 		structuralImages.put("reference", referenceSource);
 		imageKeys.add("reference");
 		maxValues.put("reference", 2*getMaxMiddlePlane(referenceSource));
+		setChannelColor(referenceSource, 0);
 
-		// Additional reference channels
+		// Additional reference channels, in the order declared by the atlas manifest
+		int channel = 1;
 		for (Map.Entry<String, String> entry : data.additionalReferencePaths.entrySet()) {
 			SourceAndConverter<?> source = loadTiffAsSourceAndConverter(entry.getValue(), affine, atlasName + "_" + entry.getKey(), ctx);
 			structuralImages.put(entry.getKey(), source);
 			imageKeys.add(entry.getKey());
 			maxValues.put(entry.getKey(), 2*getMaxMiddlePlane(source));
+			setChannelColor(source, channel++);
 		}
 
 		// Annotation/label image
@@ -144,6 +172,24 @@ public class BrainGlobeAtlasMap implements AtlasMap {
 
 		structuralImages.put(KEY_LEFT_RIGHT, leftRightSource);
 		imageKeys.add(KEY_LEFT_RIGHT);
+	}
+
+	/**
+	 * Gives a structural channel its default colour. The same converter instance
+	 * backs the volatile and non-volatile sources, so a single call colours both.
+	 *
+	 * @param source  the channel to colour
+	 * @param channel its index in display order, 0 being the reference
+	 */
+	private static void setChannelColor(SourceAndConverter<?> source, int channel) {
+		if (!(source.getConverter() instanceof ColorConverter)) {
+			// Not all pixel types yield a colourable converter; keep whatever it has
+			return;
+		}
+		int color = channel < CHANNEL_COLORS.length
+				? CHANNEL_COLORS[channel]
+				: EXTRA_CHANNEL_COLOR;
+		((ColorConverter) source.getConverter()).setColor(new ARGBType(color));
 	}
 
 	private<T extends RealType<T>> Double getMaxMiddlePlane(SourceAndConverter<?> source) {

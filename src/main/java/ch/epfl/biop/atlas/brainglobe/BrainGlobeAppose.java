@@ -31,7 +31,7 @@ import org.apposed.appose.Service.TaskStatus;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -366,7 +366,8 @@ public class BrainGlobeAppose {
 
 		@SuppressWarnings("unchecked")
 		List<String> additionalRefNames = (List<String>) metadata.get("additional_references");
-		Map<String, String> additionalRefPaths = new HashMap<>();
+		// Linked map: the channel order must follow the manifest, not hash order
+		Map<String, String> additionalRefPaths = new LinkedHashMap<>();
 		if (additionalRefNames != null) {
 			for (int i = 0; i < additionalRefNames.size(); i++) {
 				String path = (String) task.outputs.get("additional_ref_path_" + i);

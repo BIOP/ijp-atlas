@@ -88,6 +88,14 @@ public class TestBrainGlobeAtlas {
 
 		System.out.println("\nMap precision: " + map.getAtlasPrecisionInMillimeter() + " mm");
 		System.out.println("Image keys: " + map.getImagesKeys());
+		System.out.println("Channel colours:");
+		for (String key : map.getImagesKeys()) {
+			Object converter = map.getStructuralImages().get(key).getConverter();
+			String color = converter instanceof net.imglib2.display.ColorConverter
+					? String.format("#%06X", ((net.imglib2.display.ColorConverter) converter).getColor().get() & 0xFFFFFF)
+					: "n/a";
+			System.out.println("  " + color + "  " + key);
+		}
 		System.out.println("Label left=" + map.labelLeft() + " right=" + map.labelRight());
 
 		// Check structural images exist
