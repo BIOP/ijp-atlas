@@ -52,7 +52,7 @@ import org.scijava.task.TaskService;
 public class BrainGlobeAppose {
 
 	/** Default BrainGlobe Atlas API version */
-	public static final String BG_VERSION = "2.3.0";
+	public static final String BG_VERSION = "3.0.1";
 
 	// --- Static session-level cache for atlas listing ---
 
@@ -133,7 +133,7 @@ public class BrainGlobeAppose {
 				.channels("conda-forge")
 				.conda("python=3.11", "appose")
 				.pypi("brainglobe-atlasapi==" + bgVersion)
-				.name("brainglobe-abba-" + bgVersion)   // bump name to force rebuild after psutil addition
+				.name("brainglobe-abba-" + bgVersion)   // environment is keyed by the brainglobe-atlasapi version
 				.logDebug();
 
 		if (progressCallback != null) {
@@ -174,17 +174,22 @@ public class BrainGlobeAppose {
 
 	/**
 	 * Fetches a BrainGlobe atlas by name. Downloads the atlas if not cached locally.
-	 * Returns all image data as shared memory NDArrays plus metadata.
+	 * Returns image data as cached TIFF file paths plus metadata.
 	 *
 	 * @param atlasName the BrainGlobe atlas name (e.g. "example_mouse_100um")
-	 * @return atlas data containing NDArrays and metadata
+	 * @return atlas data containing TIFF paths and metadata
 	 */
 	public BrainGlobeAtlasData fetchAtlas(String atlasName) throws Exception {
 		Environment env = getOrCreateEnvironment();
 		try (Service python = env.python().init(
 				"from brainglobe_atlasapi import BrainGlobeAtlas\n"
+				+ "from brainglobe_atlasapi import bg_atlas as bg_atlas_module\n"
+				+ "from brainglobe_atlasapi import core as bg_core_module\n"
+				+ "from fsspec.callbacks import Callback\n"
 				+ "import json\n"
 				+ "import pathlib\n"
+				+ "import re\n"
+				+ "import tifffile\n"
 		)) {
 			String script = fetchAtlasScript(atlasName);
 
@@ -206,14 +211,23 @@ public class BrainGlobeAppose {
 										fetchAtlasTask.start();
 										IJ.showStatus(fetchAtlasTask.getStatusMessage());
 									}
+									break;
 								case UPDATE:
 									if (fetchAtlasTask!=null) {
-										if (fetchAtlasTask.getProgressMaximum() <= 0) {
-											fetchAtlasTask.setProgressMaximum(event.maximum);
+										// A single fetch chains several downloads (manifest, terminology,
+										// template, annotation, hemispheres, additional references), each
+										// with its own total, so the maximum is refreshed on every event.
+										fetchAtlasTask.setProgressMaximum(event.maximum);
+										fetchAtlasTask.setProgressValue(event.current);
+										if (event.message != null) {
+											fetchAtlasTask.setStatusMessage(event.message);
+											IJ.showStatus(event.message);
+										} else {
 											IJ.showStatus("Loading "+atlasName);
 										}
-										fetchAtlasTask.setProgressValue(event.current);
-										IJ.showProgress((int)(event.current/1024), (int)(event.maximum/1024));
+										if (event.maximum > 0) {
+											IJ.showProgress((double) event.current / event.maximum);
+										}
 									}
 									break;
 								case FAILURE:
@@ -375,48 +389,112 @@ public class BrainGlobeAppose {
 				+ "task.outputs['atlases'] = json.dumps(atlases)\n";
 	}
 
+	/**
+	 * Builds the Python script that downloads an atlas and hands its data back as
+	 * file paths plus JSON metadata.
+	 * <p>
+	 * brainglobe-atlasapi 3.x no longer ships an atlas as a self-contained folder of
+	 * TIFFs: an atlas is a manifest referencing separately versioned components
+	 * (template, annotation set, terminology, coordinate space), the images are
+	 * remote OME-Zarr pyramids fetched chunk by chunk, and the ontology lives in a
+	 * CSV rather than a {@code structures.json}. The script therefore materializes
+	 * the full-resolution volumes once and caches them as plain TIFFs next to the
+	 * manifest, reproducing the 2.x on-disk layout that the Java side reads lazily.
+	 */
 	private String fetchAtlasScript(String atlasName) {
 		// Sanitize the atlas name to prevent injection
 		String safeName = atlasName.replace("'", "").replace("\\", "").replace("\n", "");
-		return "atlas_name = '" + safeName + "'\n"
-				+ "\n"
-				+ "# Progress callback for atlas download\n"
-				+ "def download_progress(completed, total):\n"
-				+ "    if total > 0:\n"
-				+ "        task.update('Downloading ' + atlas_name + ': ' + str(int(100 * completed / total)) + '%', completed, total)\n"
-				+ "    else:\n"
-				+ "        task.update('Downloading ' + atlas_name + '...', 0, 0)\n"
-				+ "\n"
-				+ "task.update('Downloading...')\n"
-				+ "atlas = BrainGlobeAtlas(atlas_name, fn_update=download_progress)\n"
-				+ "\n"
-				+ "root = pathlib.Path(atlas.root_dir)\n"
-				+ "\n"
-				+ "# Collect metadata\n"
-				+ "metadata = {\n"
-				+ "    'atlas_name': atlas.atlas_name,\n"
-				+ "    'resolution': [float(r) for r in atlas.metadata['resolution']],\n"
-				+ "    'orientation': atlas.orientation,\n"
-				+ "    'symmetric': bool(atlas.metadata.get('symmetric', False)),\n"
-				+ "    'frontal_axis_index': atlas.space.axes_order.index('frontal'),\n"
-				+ "    'citation': atlas.metadata.get('citation', ''),\n"
-				+ "    'atlas_link': atlas.metadata.get('atlas_link', ''),\n"
-				+ "    'additional_references': list(atlas.metadata.get('additional_references', [])),\n"
-				+ "    'shape': [int(s) for s in atlas.shape],\n"
-				+ "}\n"
-				+ "task.outputs['metadata'] = json.dumps(metadata)\n"
-				+ "\n"
-				+ "# Read structures.json content\n"
-				+ "structures_path = root / 'structures.json'\n"
-				+ "task.outputs['structures_json'] = structures_path.read_text()\n"
-				+ "\n"
-				+ "# Return file paths instead of shared memory arrays\n"
-				+ "task.outputs['reference_path'] = str(root / 'reference.tiff')\n"
-				+ "task.outputs['annotation_path'] = str(root / 'annotation.tiff')\n"
-				+ "task.outputs['hemispheres_path'] = str(root / 'hemispheres.tiff')\n"
-				+ "\n"
-				+ "# Additional reference channels\n"
-				+ "for i, name in enumerate(atlas.metadata.get('additional_references', [])):\n"
-				+ "    task.outputs['additional_ref_path_' + str(i)] = str(root / (name + '.tiff'))\n";
+		return "atlas_name = '" + safeName + "'\n" + """
+
+				# brainglobe-atlasapi 3.x downloads OME-Zarr chunks through fsspec with a
+				# hard-coded TqdmCallback; swapping the class out in both modules routes
+				# that progress back to the Appose task.
+				class ApposeCallback(Callback):
+				    def __init__(self, *args, **kwargs):
+				        super().__init__()
+
+				    def call(self, hook_name=None, **kwargs):
+				        task.update('Downloading ' + atlas_name + '...', self.value, self.size or 0)
+
+				bg_core_module.TqdmCallback = ApposeCallback
+				bg_atlas_module.TqdmCallback = ApposeCallback
+
+				task.update('Downloading ' + atlas_name + '...')
+				atlas = BrainGlobeAtlas(atlas_name)
+
+				# In 3.x atlas.root_dir is the shared BrainGlobe store, not the atlas folder;
+				# the atlas manifest lives under the location advertised in its metadata.
+				root = pathlib.Path(atlas.root_dir) / atlas.metadata['location'].lstrip('/')
+
+				# Additional references are component dicts in 3.x, plain names in 2.x
+				additional_references = [
+				    ref['name'] if isinstance(ref, dict) else str(ref)
+				    for ref in atlas.metadata.get('additional_references', [])
+				]
+
+				metadata = {
+				    'atlas_name': atlas.atlas_name,
+				    'resolution': [float(r) for r in atlas.resolution],
+				    'orientation': atlas.orientation,
+				    'symmetric': bool(atlas.metadata.get('symmetric', False)),
+				    'frontal_axis_index': atlas.space.axes_order.index('frontal'),
+				    'citation': atlas.metadata.get('citation', ''),
+				    'atlas_link': atlas.metadata.get('atlas_link', ''),
+				    'additional_references': additional_references,
+				    'shape': [int(s) for s in atlas.shape],
+				}
+				task.outputs['metadata'] = json.dumps(metadata)
+
+				# The ontology comes from terminology.csv in 3.x; rebuild the structures.json
+				# payload that BrainGlobeHelper parses.
+				structures = [
+				    {
+				        'acronym': str(s['acronym']),
+				        'id': int(s['id']),
+				        'name': str(s['name']),
+				        'structure_id_path': [int(i) for i in s['structure_id_path']],
+				        'rgb_triplet': [int(c) for c in s['rgb_triplet']],
+				    }
+				    for s in atlas.structures_list
+				]
+				task.outputs['structures_json'] = json.dumps(structures)
+
+				def cache_tiff(filename, produce):
+				    # Materialize a volume once and keep it as a plain TIFF, so that
+				    # re-opening the atlas costs nothing and Java can read it lazily.
+				    path = root / filename
+				    if not path.exists():
+				        array = produce()
+				        partial = path.with_name(path.name + '.part')
+				        tifffile.imwrite(str(partial), array)
+				        partial.replace(path)
+				        del array
+				    return str(path)
+
+				# Each volume is held in memory only while it is being written out;
+				# dropping the atlas' cache afterwards keeps a single volume resident.
+				task.update('Loading reference of ' + atlas_name)
+				task.outputs['reference_path'] = cache_tiff('reference.tiff', lambda: atlas.template)
+				atlas._template = None
+
+				task.update('Loading annotations of ' + atlas_name)
+				task.outputs['annotation_path'] = cache_tiff('annotation.tiff', lambda: atlas.annotation)
+				atlas._annotation = None
+
+				if metadata['symmetric']:
+				    # Java derives the hemispheres of a symmetric atlas from its shape
+				    task.outputs['hemispheres_path'] = str(root / 'hemispheres.tiff')
+				else:
+				    task.update('Loading hemispheres of ' + atlas_name)
+				    task.outputs['hemispheres_path'] = cache_tiff('hemispheres.tiff', lambda: atlas.hemispheres)
+				    atlas._hemispheres = None
+
+				for i, name in enumerate(additional_references):
+				    task.update('Loading ' + name + ' of ' + atlas_name)
+				    filename = re.sub(r'[^A-Za-z0-9._-]', '_', name) + '.tiff'
+				    task.outputs['additional_ref_path_' + str(i)] = cache_tiff(
+				        filename, lambda n=name: atlas.additional_references[n])
+				    atlas.additional_references.data[name] = None
+				""";
 	}
 }

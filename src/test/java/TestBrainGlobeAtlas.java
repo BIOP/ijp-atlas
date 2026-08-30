@@ -19,6 +19,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+import ch.epfl.biop.atlas.AtlasLocationHelper;
 import ch.epfl.biop.atlas.brainglobe.BrainGlobeAtlas;
 import ch.epfl.biop.atlas.struct.AtlasHelper;
 import ch.epfl.biop.atlas.struct.AtlasMap;
@@ -29,18 +30,29 @@ import ch.epfl.biop.atlas.struct.AtlasOntology;
  * Manual test for BrainGlobeAtlas full pipeline.
  * <p>
  * Tests the complete flow: Appose Python fetch -> AtlasMap (BDV sources) + AtlasOntology.
- * Uses "example_mouse_100um" which is a small test atlas.
+ * Defaults to "example_mouse_100um", a small test atlas.
  * <p>
- * Run with: mvn exec:java -Dexec.mainClass="TestBrainGlobeAtlas"
+ * Run with: mvn exec:java -Dexec.mainClass="TestBrainGlobeAtlas" -Dexec.classpathScope=test
+ * An atlas name may be passed as the first argument.
  */
 public class TestBrainGlobeAtlas {
+
+	static {
+		// The SciJava context below pulls in the ImageJ legacy service, which has to
+		// patch ij.IJ before that class gets loaded by anything else
+		net.imagej.patcher.LegacyInjector.preinit();
+	}
 
 	public static void main(String[] args) throws Exception {
 
 		System.out.println("=== Test: Full BrainGlobeAtlas pipeline ===\n");
 
+		// The map reads its TIFFs through SCIFIO, which needs a SciJava context
+		AtlasLocationHelper.setContext(new org.scijava.Context());
+
 		// Create and initialize the atlas
-		BrainGlobeAtlas atlas = new BrainGlobeAtlas("example_mouse_100um");
+		String atlasName = args.length > 0 ? args[0] : "example_mouse_100um";
+		BrainGlobeAtlas atlas = new BrainGlobeAtlas(atlasName);
 		atlas.setProgressCallback(msg -> System.out.println("[progress] " + msg));
 		atlas.setErrorCallback(msg -> System.err.println("[error] " + msg));
 
@@ -52,7 +64,7 @@ public class TestBrainGlobeAtlas {
 		System.out.println("Atlas name: " + atlas.getName());
 		System.out.println("Atlas URL: " + atlas.getURL());
 		System.out.println("Atlas DOIs: " + atlas.getDOIs());
-		assert atlas.getName().contains("example_mouse") : "Unexpected name";
+		assert atlas.getName().equals(atlasName) : "Unexpected name";
 
 		// --- Check Ontology ---
 		AtlasOntology ontology = atlas.getOntology();
@@ -95,5 +107,8 @@ public class TestBrainGlobeAtlas {
 		assert refMax > 0 : "Reference max should be positive";
 
 		System.out.println("\n=== All tests passed! ===");
+		// The SciJava context keeps non-daemon threads alive and one of its shutdown
+		// hooks never returns, so bypass both rather than hanging the test
+		Runtime.getRuntime().halt(0);
 	}
 }
