@@ -75,7 +75,9 @@ public class TestBrainGlobeAppose {
 		assert data.hemispheresPath != null : "Hemispheres path is null";
 		assert new File(data.referencePath).exists() : "Reference file does not exist: " + data.referencePath;
 		assert new File(data.annotationPath).exists() : "Annotation file does not exist: " + data.annotationPath;
-		assert new File(data.hemispheresPath).exists() : "Hemispheres file does not exist: " + data.hemispheresPath;
+		// Symmetric atlases ship no hemispheres image: it is derived from the shape instead
+		assert data.isSymmetric() || new File(data.hemispheresPath).exists()
+				: "Hemispheres file does not exist: " + data.hemispheresPath;
 		assert data.structuresJson != null && !data.structuresJson.isEmpty() : "Structures JSON is empty";
 
 		System.out.println("PASSED\n");
