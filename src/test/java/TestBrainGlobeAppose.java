@@ -21,6 +21,7 @@
  */
 import ch.epfl.biop.atlas.brainglobe.BrainGlobeAppose;
 import ch.epfl.biop.atlas.brainglobe.BrainGlobeAppose.BrainGlobeAtlasData;
+import ch.epfl.biop.atlas.brainglobe.BrainGlobeAtlasId;
 import ch.epfl.biop.atlas.brainglobe.BrainGlobeHelper;
 import ch.epfl.biop.atlas.struct.AtlasNode;
 
@@ -38,6 +39,9 @@ import java.util.List;
  */
 public class TestBrainGlobeAppose {
 
+	/** Small test atlas (~2 MB), kept small on purpose */
+	private static final String EXAMPLE_ATLAS = "example_mouse_100um";
+
 	public static void main(String[] args) throws Exception {
 		BrainGlobeAppose bg = new BrainGlobeAppose();
 		bg.setProgressCallback(msg -> System.out.println("[progress] " + msg));
@@ -45,19 +49,29 @@ public class TestBrainGlobeAppose {
 
 		// --- Test 1: List available atlases ---
 		System.out.println("=== Test 1: Listing available atlases ===");
-		List<String> atlases = bg.listAvailableAtlases();
+		List<BrainGlobeAtlasId> atlases = bg.listAvailableAtlases();
 		System.out.println("Found " + atlases.size() + " atlases:");
-		for (String name : atlases) {
-			System.out.println("  - " + name);
+		for (BrainGlobeAtlasId id : atlases) {
+			System.out.println("  - " + id);
 		}
 		assert !atlases.isEmpty() : "Expected at least one atlas";
 		System.out.println("PASSED\n");
 
 		// --- Test 2: Fetch a small test atlas ---
-		System.out.println("=== Test 2: Fetching example_mouse_100um ===");
-		BrainGlobeAtlasData data = bg.fetchAtlas("example_mouse_100um");
+		// The version comes from the catalogue rather than being hard-coded, so this
+		// keeps testing the latest example atlas as it is republished
+		BrainGlobeAtlasId exampleId = atlases.stream()
+				.filter(id -> id.getName().equals(EXAMPLE_ATLAS))
+				.findFirst()
+				.orElseThrow(() -> new IllegalStateException(
+						EXAMPLE_ATLAS + " is not in the BrainGlobe catalogue"));
 
+		System.out.println("=== Test 2: Fetching " + exampleId + " ===");
+		BrainGlobeAtlasData data = bg.fetchAtlas(exampleId);
+
+		assert exampleId.equals(data.getId()) : "Fetched " + data.getId() + " instead of " + exampleId;
 		System.out.println("Atlas name: " + data.getAtlasName());
+		System.out.println("Atlas version: " + data.getVersion());
 		System.out.println("Orientation: " + data.getOrientation());
 		System.out.println("Resolution (um): " + data.getResolution());
 		System.out.println("Reference path: " + data.referencePath);

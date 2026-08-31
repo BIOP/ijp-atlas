@@ -46,13 +46,14 @@ import java.util.function.Consumer;
  * <p>
  * Usage:
  * <pre>
- *   BrainGlobeAtlas atlas = new BrainGlobeAtlas("example_mouse_100um");
+ *   BrainGlobeAtlas atlas = new BrainGlobeAtlas("example_mouse_100um@3.1");
  *   atlas.initialize(null, null); // URLs not used, BrainGlobe handles data source
  * </pre>
+ * The version is mandatory; see {@link BrainGlobeAtlasId}.
  */
 public class BrainGlobeAtlas implements Atlas {
 
-	private final String bgAtlasName;
+	private final BrainGlobeAtlasId id;
 	private final BrainGlobeAppose appose;
 
 	private BrainGlobeAtlasMap atlasMap;
@@ -62,12 +63,20 @@ public class BrainGlobeAtlas implements Atlas {
 
 	private Consumer<String> progressCallback;
 
-	public BrainGlobeAtlas(String bgAtlasName) {
-		this(bgAtlasName, new BrainGlobeAppose());
+	/**
+	 * @param bgAtlasId versioned atlas id, e.g. {@code allen_mouse_50um@3.1}
+	 * @throws IllegalArgumentException if no version is given
+	 */
+	public BrainGlobeAtlas(String bgAtlasId) {
+		this(BrainGlobeAtlasId.parse(bgAtlasId), new BrainGlobeAppose());
 	}
 
-	public BrainGlobeAtlas(String bgAtlasName, BrainGlobeAppose appose) {
-		this.bgAtlasName = bgAtlasName;
+	public BrainGlobeAtlas(BrainGlobeAtlasId id) {
+		this(id, new BrainGlobeAppose());
+	}
+
+	public BrainGlobeAtlas(BrainGlobeAtlasId id, BrainGlobeAppose appose) {
+		this.id = id;
 		this.appose = appose;
 	}
 
@@ -83,11 +92,11 @@ public class BrainGlobeAtlas implements Atlas {
 	@Override
 	public void initialize(URL mapURL, URL ontologyURL) throws Exception {
 		if (progressCallback != null) {
-			progressCallback.accept("Fetching BrainGlobe atlas: " + bgAtlasName);
+			progressCallback.accept("Fetching BrainGlobe atlas: " + id);
 		}
 
 		// Fetch all data from Python via Appose
-		BrainGlobeAppose.BrainGlobeAtlasData data = appose.fetchAtlas(bgAtlasName);
+		BrainGlobeAppose.BrainGlobeAtlasData data = appose.fetchAtlas(id);
 
 		// Build the ontology from structures JSON
 		ontology = buildOntology(data);
@@ -121,7 +130,7 @@ public class BrainGlobeAtlas implements Atlas {
 		AtlasNode root = BrainGlobeHelper.buildTreeAndGetRoot(tempStructures.getAbsolutePath());
 		Map<Integer, AtlasNode> idToNode = AtlasHelper.buildIdToAtlasNodeMap(root);
 
-		return new BrainGlobeOntology(bgAtlasName, root, idToNode);
+		return new BrainGlobeOntology(id.toString(), root, idToNode);
 	}
 
 	@Override
@@ -146,7 +155,7 @@ public class BrainGlobeAtlas implements Atlas {
 
 	@Override
 	public String getName() {
-		return bgAtlasName;
+		return id.toString();
 	}
 
 	@Override

@@ -38,11 +38,14 @@ ch.epfl.biop.atlas
 ├── struct/              # Core API interfaces and helpers
 ├── scijava/             # SciJava integration (commands, pre/post processors)
 ├── custom/              # Factory for creating custom atlases from ImagePlus
-├── mouse/allen/         # Allen Brain Mouse atlas implementations (CCF v3, v3.1)
-├── rat/waxholm/         # Waxholm Rat atlas implementations (v4, v4.2)
-├── brainglobe/          # BrainGlobe integration via Appose
-│   └── command/         # SciJava commands for BrainGlobe atlases
+├── mouse/allen/         # Allen Brain Mouse atlas implementations (CCF v3, v3.1, v3.1-ASR)
+├── rat/waxholm/         # Waxholm Rat atlas implementations (v4, v4.2, v4.2-ASR)
+└── brainglobe/          # BrainGlobe integration via Appose
 ```
+
+Each built-in atlas version has its own package with a `command/` subpackage holding its SciJava
+`Command`. `brainglobe/` has no `command/` subpackage: BrainGlobe atlases are surfaced through
+`AtlasChooserCommand`.
 
 ### SciJava Plugin Integration
 
@@ -52,6 +55,11 @@ ch.epfl.biop.atlas
 
 Each concrete atlas (Allen, Waxholm) has a Command class that extends its atlas implementation and implements `Command`, annotated with `@Plugin`. This pattern enables auto-discovery.
 
+`AtlasChooserCommand` also takes a comma-separated list of *additional* atlas names; when it is
+non-empty the resolved atlases are merged into a `CompositeAtlas` (`struct/CompositeAtlas`,
+`struct/CompositeAtlasMap`), which exposes the structural channels of every member while the
+ontology and label image come from the principal atlas.
+
 ### Data Loading
 
 - Atlas maps load from BigDataViewer XML/HDF5 format (SpimData)
@@ -60,7 +68,7 @@ Each concrete atlas (Allen, Waxholm) has a Command class that extends its atlas 
 
 ### BrainGlobe Integration (via Appose)
 
-All BrainGlobe atlases (https://brainglobe.info/) are available through an Appose-based bridge to the Python `brainglobe-atlasapi`. This replaces a previous pyimagej/JPype approach (see `migration/pyimagej_wrapper/` for the old code).
+All BrainGlobe atlases (https://brainglobe.info/) are available through an Appose-based bridge to the Python `brainglobe-atlasapi`. This replaced an earlier pyimagej/JPype approach, which has since been removed from the repository.
 
 Key classes in `ch.epfl.biop.atlas.brainglobe`:
 
@@ -68,12 +76,35 @@ Key classes in `ch.epfl.biop.atlas.brainglobe`:
 - **BrainGlobeAtlas** - Implements `Atlas`. Orchestrates fetching data via `BrainGlobeAppose`, building the ontology via `BrainGlobeHelper`, and constructing the `BrainGlobeAtlasMap`.
 - **BrainGlobeAtlasMap** - Implements `AtlasMap`. Opens the TIFF volumes with SCIFIO in `CELL` mode (lazy, cached) and wraps them as BDV `SourceAndConverter<?>` objects.
 - **BrainGlobeHelper** - Parses a BrainGlobe `structures.json` payload into an `AtlasNode` tree (pure Java, no Python needed).
-- **BrainGlobeAtlasCommand** - SciJava Command (`Plugins > BIOP > Atlas > Open BrainGlobe Atlas`)
-- **BrainGlobeListAtlasesCommand** - SciJava Command (`Plugins > BIOP > Atlas > List BrainGlobe Atlases`)
+- **BrainGlobeStructures** - Gson data-binding classes for that `structures.json` payload.
+- **BrainGlobeAtlasId** - The versioned identifier `name@version` (see below).
+- **BrainGlobeLocalInventory** - Which atlases are materialized on disk. Pure Java: no Python, no network, never throws.
+
+#### Atlas identity: `name@version`
+
+A BrainGlobe atlas is always named `allen_mouse_50um@3.1`, in the chooser, in the
+`additionalAtlases` list, in scripts, and from `Atlas.getName()`. **A bare name is a hard error** —
+atlas versions renumber regions, so silently resolving to "latest" is how a dataset gets
+reinterpreted against an ontology it was never aligned to. `@latest` is deliberately not accepted.
+
+`@` is our convention, not BrainGlobe's — upstream keeps name and version strictly apart
+(`AtlasName` is a literal type of bare names, `BrainGlobeAtlas(name, version=...)` takes two
+arguments, on disk they are two path segments, `last_versions.conf` is an INI mapping). **Never pass
+a combined string into Python**: split it first. `@` was picked because no published atlas name
+contains one, whereas 14 contain dots (`kocher_bumblebee_2.542um`) and many contain hyphens — so
+parsing splits on `@` and never on a dot. `registerAtlas` rejects `@` to keep it meaning one thing.
+
+`fetchAtlasScript` passes `version=` and `check_latest=False`, so a pinned, already-materialized
+atlas opens with no network access whatsoever.
+
+There is no BrainGlobe-specific SciJava `Command`. BrainGlobe is reached from `AtlasChooserCommand`
+(`Plugins > BIOP > Atlas > Open Atlas`) through its `Get BrainGlobe Atlases...` dropdown entry: the
+`checkBrainGlobe` callback builds the Python environment behind a modal dialog, registers every
+atlas name via `AtlasChooserCommand.registerAtlas`, then repopulates the dropdown.
 
 Data flow: Java → Appose (Pixi env with `brainglobe-atlasapi`) → Python downloads the atlas and writes each volume as a plain TIFF → the file paths and a metadata/ontology JSON come back as task outputs → Java opens the TIFFs lazily as `SourceAndConverter` (BDV).
 
-BrainGlobe atlases are automatically registered in `AtlasChooserCommand` on first use. If the Python environment fails to build (no Pixi, no network), the built-in Allen/Waxholm atlases remain available.
+BrainGlobe atlases are registered in `AtlasChooserCommand` on first use. If the Python environment fails to build (no Pixi, no network), the built-in Allen/Waxholm atlases remain available.
 
 #### brainglobe-atlasapi 3.x layout
 
@@ -84,7 +115,23 @@ BrainGlobe atlases are automatically registered in `AtlasChooserCommand` on firs
 - The ontology is a `terminology.csv`, not a `structures.json`.
 - Every 3.x atlas is stored in `asr` orientation.
 
-`fetchAtlasScript` bridges that gap: it materializes the full-resolution volumes once (the "old fashioned" whole-brain download rather than lazy multiscale access) and caches them as plain TIFFs next to the manifest, and it rebuilds the `structures.json` payload from `atlas.structures_list`. Download progress is reported by swapping the hard-coded `fsspec` `TqdmCallback` in `brainglobe_atlasapi.core` and `.bg_atlas` for a callback that forwards to the Appose task.
+`fetchAtlasScript` bridges that gap: it materializes the full-resolution volumes once and caches them as plain TIFFs next to the manifest (inside the versioned folder, so the cache is per-version), and it rebuilds the `structures.json` payload from `atlas.structures_list`. Download progress is reported by swapping the hard-coded `fsspec` `TqdmCallback` in `brainglobe_atlasapi.core` and `.bg_atlas` for a callback that forwards to the Appose task.
+
+**Design decision — always materialize, never stream.** An atlas is downloaded in full and written
+to local TIFFs before it is used; the lazy remote OME-Zarr access offered by 3.x is deliberately not
+used. Atlas sizes are very manageable, and streaming would make every downstream operation depend on
+network availability and latency. Do not replace this with chunk-on-demand access. The consequence
+is that a download is slow and worth announcing to the user up front, and that "downloaded" has
+three distinct meanings on disk:
+
+| State | On disk under `atlases/<name>/<version>/` | Cost to open |
+|---|---|---|
+| absent | nothing | full download |
+| registered by `brainglobe-atlasapi` | `manifest.json` + metadata JSON/CSV only | still a full volume download |
+| materialized for ABBA | `reference.tiff`, `annotation.tiff`, `hemispheres.tiff` | ~0, works offline |
+
+`brainglobe_atlasapi.list_atlases.get_downloaded_atlases()` reports the second state as downloaded,
+so it is *not* a valid check for "ready to use here". Only the presence of the TIFFs is.
 
 ### Creating Custom Atlases
 

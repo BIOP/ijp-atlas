@@ -106,7 +106,9 @@ public class BrainGlobeAtlasMap implements AtlasMap {
 	 * @param data the atlas data from BrainGlobeAppose.fetchAtlas()
 	 */
 	public void initializeFromApposeData(BrainGlobeAppose.BrainGlobeAtlasData data, Context ctx) {
-		this.atlasName = data.getAtlasName();
+		// Versioned, so that two versions of one atlas opened at once stay tellable
+		// apart in the BDV source list
+		this.atlasName = data.getId().toString();
 
 		List<Double> resolution = data.getResolution(); // [z, y, x] in micrometers
 

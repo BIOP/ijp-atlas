@@ -30,10 +30,10 @@ import ch.epfl.biop.atlas.struct.AtlasOntology;
  * Manual test for BrainGlobeAtlas full pipeline.
  * <p>
  * Tests the complete flow: Appose Python fetch -> AtlasMap (BDV sources) + AtlasOntology.
- * Defaults to "example_mouse_100um", a small test atlas.
+ * Defaults to "example_mouse_100um@3.0", a small test atlas.
  * <p>
  * Run with: mvn exec:java -Dexec.mainClass="TestBrainGlobeAtlas" -Dexec.classpathScope=test
- * An atlas name may be passed as the first argument.
+ * An atlas id (name@version) may be passed as the first argument.
  */
 public class TestBrainGlobeAtlas {
 
@@ -50,8 +50,8 @@ public class TestBrainGlobeAtlas {
 		// The map reads its TIFFs through SCIFIO, which needs a SciJava context
 		AtlasLocationHelper.setContext(new org.scijava.Context());
 
-		// Create and initialize the atlas
-		String atlasName = args.length > 0 ? args[0] : "example_mouse_100um";
+		// Create and initialize the atlas. Ids carry a version; a bare name is refused
+		String atlasName = args.length > 0 ? args[0] : "example_mouse_100um@3.0";
 		BrainGlobeAtlas atlas = new BrainGlobeAtlas(atlasName);
 		atlas.setProgressCallback(msg -> System.out.println("[progress] " + msg));
 		atlas.setErrorCallback(msg -> System.err.println("[error] " + msg));

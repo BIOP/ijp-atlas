@@ -58,22 +58,26 @@ public class BrainGlobeAppose {
 
 	private enum ListingState { NOT_TRIED, SUCCEEDED, FAILED }
 	private static volatile ListingState listingState = ListingState.NOT_TRIED;
-	private static List<String> cachedAtlasNames = null;
+	private static List<BrainGlobeAtlasId> cachedAtlasIds = null;
 
 	/**
-	 * Returns the list of available BrainGlobe atlas names, with session-level caching.
+	 * Returns the latest published version of every BrainGlobe atlas, with
+	 * session-level caching.
 	 * <ul>
 	 *   <li>First call: builds the Python environment (slow) and fetches the list.</li>
 	 *   <li>Subsequent calls: returns the cached list instantly.</li>
-	 *   <li>If the first call fails (no mamba/network/etc.), returns an empty list
+	 *   <li>If the first call fails (no pixi/network/etc.), returns an empty list
 	 *       and will NOT retry for the remainder of this session.</li>
 	 * </ul>
+	 * This is the <i>remote catalogue</i>, and every part of it can fail. What is
+	 * already installed comes from {@link BrainGlobeLocalInventory} instead, which
+	 * cannot.
 	 *
-	 * @return list of atlas names, or empty list if unavailable
+	 * @return latest version of each atlas, or an empty list if unavailable
 	 */
-	public static synchronized List<String> getAvailableAtlasNames() {
+	public static synchronized List<BrainGlobeAtlasId> getAvailableAtlasIds() {
 		if (listingState == ListingState.SUCCEEDED) {
-			return cachedAtlasNames;
+			return cachedAtlasIds;
 		}
 		if (listingState == ListingState.FAILED) {
 			return Collections.emptyList();
@@ -82,9 +86,9 @@ public class BrainGlobeAppose {
 		// First attempt
 		try {
 			BrainGlobeAppose bg = new BrainGlobeAppose();
-			cachedAtlasNames = bg.listAvailableAtlases();
+			cachedAtlasIds = bg.listAvailableAtlases();
 			listingState = ListingState.SUCCEEDED;
-			return cachedAtlasNames;
+			return cachedAtlasIds;
 		} catch (Exception e) {
 			System.err.println("BrainGlobe atlas listing failed (will not retry this session): " + e.getMessage());
 			listingState = ListingState.FAILED;
@@ -149,11 +153,11 @@ public class BrainGlobeAppose {
 	}
 
 	/**
-	 * Lists all available BrainGlobe atlases (name and latest version).
+	 * Lists all published BrainGlobe atlases with their latest version.
 	 *
-	 * @return list of atlas names (e.g. "allen_mouse_25um", "kim_unified_25um")
+	 * @return one id per atlas, e.g. {@code allen_mouse_25um@3.1}
 	 */
-	public List<String> listAvailableAtlases() throws Exception {
+	public List<BrainGlobeAtlasId> listAvailableAtlases() throws Exception {
 		Environment env = getOrCreateEnvironment();
 		try (Service python = env.python().init(
 				"from brainglobe_atlasapi import show_atlases\n"
@@ -168,18 +172,35 @@ public class BrainGlobeAppose {
 			}
 
 			String json = (String) task.outputs.get("atlases");
-			return new Gson().fromJson(json, new TypeToken<List<String>>(){}.getType());
+			Map<String, String> latestVersions = new Gson().fromJson(json,
+					new TypeToken<LinkedHashMap<String, String>>(){}.getType());
+
+			List<BrainGlobeAtlasId> ids = new ArrayList<>();
+			for (Map.Entry<String, String> entry : latestVersions.entrySet()) {
+				try {
+					ids.add(BrainGlobeAtlasId.of(entry.getKey(), entry.getValue()));
+				} catch (IllegalArgumentException e) {
+					// One malformed catalogue entry must not cost us the other 221
+					System.err.println("Skipping BrainGlobe atlas '" + entry.getKey() + "': " + e.getMessage());
+				}
+			}
+			return ids;
 		}
 	}
 
 	/**
-	 * Fetches a BrainGlobe atlas by name. Downloads the atlas if not cached locally.
-	 * Returns image data as cached TIFF file paths plus metadata.
+	 * Fetches a BrainGlobe atlas at a specific version, downloading and materializing
+	 * it if it is not already on disk. Returns image data as cached TIFF file paths
+	 * plus metadata.
+	 * <p>
+	 * The version is always pinned, so an atlas published in a newer version after a
+	 * dataset was aligned still opens as the version it was aligned against.
 	 *
-	 * @param atlasName the BrainGlobe atlas name (e.g. "example_mouse_100um")
+	 * @param id the versioned atlas id, e.g. {@code example_mouse_100um@3.1}
 	 * @return atlas data containing TIFF paths and metadata
 	 */
-	public BrainGlobeAtlasData fetchAtlas(String atlasName) throws Exception {
+	public BrainGlobeAtlasData fetchAtlas(BrainGlobeAtlasId id) throws Exception {
+		String atlasName = id.getName();
 		Environment env = getOrCreateEnvironment();
 		try (Service python = env.python().init(
 				"from brainglobe_atlasapi import BrainGlobeAtlas\n"
@@ -191,12 +212,12 @@ public class BrainGlobeAppose {
 				+ "import re\n"
 				+ "import tifffile\n"
 		)) {
-			String script = fetchAtlasScript(atlasName);
+			String script = fetchAtlasScript(id);
 
 			org.scijava.task.Task fetchAtlasTask;
 			Context ctx = AtlasLocationHelper.getContext();
 			if (ctx != null) {
-				fetchAtlasTask = ctx.getService(TaskService.class).createTask("Fetching Atlas " + atlasName);
+				fetchAtlasTask = ctx.getService(TaskService.class).createTask("Fetching Atlas " + id);
 			} else {
 				fetchAtlasTask = null;
 			}
@@ -247,7 +268,7 @@ public class BrainGlobeAppose {
 				task.waitFor();
 
 				if (task.status != TaskStatus.COMPLETE) {
-					throw new RuntimeException("Failed to fetch atlas '" + atlasName + "': " + task.error);
+					throw new RuntimeException("Failed to fetch atlas '" + id + "': " + task.error);
 				}
 
 				return extractAtlasData(task);
@@ -303,9 +324,19 @@ public class BrainGlobeAppose {
 			return result;
 		}
 
-		/** Atlas name */
+		/** Bare atlas name, without a version */
 		public String getAtlasName() {
 			return (String) metadata.get("atlas_name");
+		}
+
+		/** Dotted version of the atlas that was actually opened, e.g. {@code 3.1} */
+		public String getVersion() {
+			return (String) metadata.get("version");
+		}
+
+		/** @return the versioned id, e.g. {@code allen_mouse_50um@3.1} */
+		public BrainGlobeAtlasId getId() {
+			return BrainGlobeAtlasId.of(getAtlasName(), getVersion());
 		}
 
 		/** Orientation string (e.g. "asr") */
@@ -382,11 +413,11 @@ public class BrainGlobeAppose {
 	}
 
 	private String listAtlasesScript() {
-		return //"from brainglobe_atlasapi import show_atlases\n"
-				//+ "from brainglobe_atlasapi.list_atlases import get_all_atlases_lastversions\n"
-				/*+*/ "import json\n"
+		// The name -> latest version mapping is handed over as-is; Java owns the
+		// name@version convention, which does not exist upstream.
+		return "import json\n"
 				+ "\n"
-				+ "atlases = list(get_all_atlases_lastversions().keys())\n"
+				+ "atlases = {str(k): str(v) for k, v in get_all_atlases_lastversions().items()}\n"
 				+ "task.outputs['atlases'] = json.dumps(atlases)\n";
 	}
 
@@ -402,10 +433,12 @@ public class BrainGlobeAppose {
 	 * the full-resolution volumes once and caches them as plain TIFFs next to the
 	 * manifest, reproducing the 2.x on-disk layout that the Java side reads lazily.
 	 */
-	private String fetchAtlasScript(String atlasName) {
-		// Sanitize the atlas name to prevent injection
-		String safeName = atlasName.replace("'", "").replace("\\", "").replace("\n", "");
-		return "atlas_name = '" + safeName + "'\n" + """
+	private String fetchAtlasScript(BrainGlobeAtlasId id) {
+		// Sanitize the atlas name to prevent injection. The version is already known
+		// to be dot-separated integers, BrainGlobeAtlasId having rejected anything else.
+		String safeName = id.getName().replace("'", "").replace("\\", "").replace("\n", "");
+		return "atlas_name = '" + safeName + "'\n"
+				+ "atlas_version = '" + id.getVersion() + "'\n" + """
 
 				# brainglobe-atlasapi 3.x downloads OME-Zarr chunks through fsspec with a
 				# hard-coded TqdmCallback; swapping the class out in both modules routes
@@ -421,7 +454,13 @@ public class BrainGlobeAppose {
 				bg_atlas_module.TqdmCallback = ApposeCallback
 
 				task.update('Downloading ' + atlas_name + '...')
-				atlas = BrainGlobeAtlas(atlas_name)
+				# version is pinned so that an atlas republished upstream never silently
+				# takes the place of the one a dataset was aligned against; check_latest
+				# is off so that opening an atlas already on disk touches no network at
+				# all (it would otherwise cost an S3 listing just to print a hint).
+				atlas = BrainGlobeAtlas(
+				    atlas_name, version=atlas_version, check_latest=False
+				)
 
 				# In 3.x atlas.root_dir is the shared BrainGlobe store, not the atlas folder;
 				# the atlas manifest lives under the location advertised in its metadata.
@@ -435,6 +474,7 @@ public class BrainGlobeAppose {
 
 				metadata = {
 				    'atlas_name': atlas.atlas_name,
+				    'version': str(atlas.metadata.get('version', atlas_version)).replace('_', '.'),
 				    'resolution': [float(r) for r in atlas.resolution],
 				    'orientation': atlas.orientation,
 				    'symmetric': bool(atlas.metadata.get('symmetric', False)),
