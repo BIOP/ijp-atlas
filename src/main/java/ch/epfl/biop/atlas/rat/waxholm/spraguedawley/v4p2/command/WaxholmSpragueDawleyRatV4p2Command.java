@@ -33,6 +33,7 @@ import org.scijava.plugin.Plugin;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+@Deprecated
 @Plugin(type = Command.class)//, menuPath = "Plugins>BIOP>Atlas>Rat (Waxholm Sprague Dawley V4p1)")
 public class WaxholmSpragueDawleyRatV4p2Command extends WaxholmSpragueDawleyRatV4p2Atlas implements Command {
 
@@ -79,6 +80,11 @@ public class WaxholmSpragueDawleyRatV4p2Command extends WaxholmSpragueDawleyRatV
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean isDeprecated() {
+        return true;
     }
 
 }

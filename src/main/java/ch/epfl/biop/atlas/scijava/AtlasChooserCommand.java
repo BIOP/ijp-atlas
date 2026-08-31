@@ -204,10 +204,10 @@ public class AtlasChooserCommand extends DynamicCommand {
             choices.add(entry.getKey());
         }
         Collections.sort(choices);
-        choices.add(0, WaxholmSpragueDawleyRatV4p2Atlas.atlasName);
-        choices.add(0, WaxholmSpragueDawleyRatV4p2ASRCommand.atlasName);
-        choices.add(0, AllenBrainAdultMouseAtlasCCF2017v3p1Command.atlasName);
-        choices.add(0, AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand.atlasName);
+        //choices.add(0, WaxholmSpragueDawleyRatV4p2Atlas.atlasName);
+        choices.addFirst(WaxholmSpragueDawleyRatV4p2ASRCommand.atlasName);
+        //choices.add(0, AllenBrainAdultMouseAtlasCCF2017v3p1Command.atlasName);
+        choices.addFirst(AllenBrainAdultMouseAtlasCCF2017v3p1ASRCommand.atlasName);
 
         if (!brainGlobeRegistered) {
             choices.add(BRAINGLOBE_OPTION);

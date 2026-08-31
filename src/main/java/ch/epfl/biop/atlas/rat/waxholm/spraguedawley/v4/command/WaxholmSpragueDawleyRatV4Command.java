@@ -77,4 +77,9 @@ public class WaxholmSpragueDawleyRatV4Command extends WaxholmSpragueDawleyRatV4A
 		}
 	}
 
+	@Override
+	public boolean isDeprecated() {
+		return true;
+	}
+
 }

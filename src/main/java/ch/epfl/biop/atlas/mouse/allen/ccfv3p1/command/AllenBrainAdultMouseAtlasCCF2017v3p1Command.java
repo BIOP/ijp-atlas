@@ -36,6 +36,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 @Plugin(type = Command.class)
 public class AllenBrainAdultMouseAtlasCCF2017v3p1Command extends AllenAtlas implements Command {
 
@@ -103,5 +104,10 @@ public class AllenBrainAdultMouseAtlasCCF2017v3p1Command extends AllenAtlas impl
 	@Override
 	public String getName() {
 		return atlasName;
+	}
+
+	@Override
+	public boolean isDeprecated() {
+		return true;
 	}
 }

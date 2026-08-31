@@ -95,4 +95,9 @@ public class AllenBrainAdultMouseAtlasCCF2017Command extends AllenAtlas implemen
 	public String getName() {
 		return "Adult Mouse Brain - Allen Brain Atlas V3";
 	}
+
+	@Override
+	public boolean isDeprecated() {
+		return true;
+	}
 }

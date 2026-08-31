@@ -43,4 +43,8 @@ public interface Atlas {
     String getURL();
 
     String getName();
+
+    default boolean isDeprecated() {
+        return false;
+    }
 }
