@@ -18,12 +18,13 @@
 	<url>http://biop.epfl.ch</url>
 	<inceptionYear>2021</inceptionYear>
 	<organization>
-		<name>BIOP</name>
-		<url>http://biop.epfl.ch</url>
+		<name>University of Geneva - Department of Biochemistry</name>
+		<url>https://www.unige.ch/sciences/biochimie/</url>
 	</organization>
 	<licenses>
 		<license>
-			<name>Simplified BSD License</name>
+			<name>MIT License</name>
+			<url>https://opensource.org/licenses/MIT</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
@@ -104,8 +105,8 @@
 
 		<license.excludes>**/resources/**</license.excludes>
 		<package-name>ch.epfl.biop.atlas</package-name>
-		<license.licenseName>gpl_v3</license.licenseName>
-		<license.copyrightOwners>EPFL</license.copyrightOwners>
+		<license.licenseName>mit</license.licenseName>
+		<license.copyrightOwners>EPFL and University of Geneva</license.copyrightOwners>
 		<bigdataviewer-playground.version>0.23.1</bigdataviewer-playground.version>
 		<bigdataviewer-biop-tools.version>0.23.0</bigdataviewer-biop-tools.version>
 		<bigdataviewer-image-loaders.version>0.23.2</bigdataviewer-image-loaders.version>

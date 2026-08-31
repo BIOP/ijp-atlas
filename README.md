@@ -339,6 +339,7 @@ Questions and bug reports are welcome on the [image.sc forum](https://forum.imag
 
 ## License
 
-GPL v3 — see [LICENSE.txt](LICENSE.txt). Copyright (C) 2021 - 2026 EPFL.
+MIT — see [LICENSE.txt](LICENSE.txt). Copyright (C) 2021 - 2026 EPFL and University of Geneva.
 
-Developed at the [BioImaging & Optics Platform (BIOP)](https://www.epfl.ch/research/facilities/ptbiop/), EPFL.
+Originally developed at the [BioImaging & Optics Platform (BIOP)](https://www.epfl.ch/research/facilities/ptbiop/), EPFL,
+and currently maintained at the [Department of Biochemistry](https://www.unige.ch/sciences/biochimie/), University of Geneva.
