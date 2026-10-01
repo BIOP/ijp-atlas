@@ -60,6 +60,10 @@ import java.util.function.Supplier;
 
 @SuppressWarnings("CanBeFinal")
 @Plugin(type = DynamicCommand.class, menuPath = "Plugins>BIOP>Atlas>Open Atlas",
+        description = "Opens a brain atlas, the first step of an ABBA session: its output is the input 'ba' of "
+                + "'ABBA - ABBA Start' and 'ABBA - Align Big Brains and Atlases (no GUI)'. The atlases offered are computed "
+                + "when the command starts: the built-in ones and the BrainGlobe atlases already downloaded, then the "
+                + "BrainGlobe atlases not downloaded yet.",
         initializer = "init",
         iconPath = "/graphics/brainglobe.png")
 public class AtlasChooserCommand extends DynamicCommand {
@@ -70,7 +74,11 @@ public class AtlasChooserCommand extends DynamicCommand {
     @Parameter
     CommandService cmd;
 
-    @Parameter(label = "Choose an atlas", callback = "checkBrainGlobe")
+    @Parameter(label = "Choose an atlas", callback = "checkBrainGlobe",
+            description = "Atlas name. Names ending in '_java' are built into ABBA (allen_mouse_10um_java: Allen mouse CCFv3.1; "
+                    + "whs_sd_rat_39um_java: Waxholm rat v4.2). Names with '@' and a version (allen_mouse_25um@3.0) are BrainGlobe "
+                    + "atlases, downloaded once, which can take minutes and a few GB. 'Get BrainGlobe Atlases...' opens a "
+                    + "window to choose one.")
     String choice = "-";
 
     @Parameter(label = "Additional atlases (comma-separated, optional)",
@@ -89,18 +97,17 @@ public class AtlasChooserCommand extends DynamicCommand {
         String principalName = toAtlasName(choice);
         if (principalName == null) {
             // The separator row, or the BrainGlobe placeholder left unresolved
-            System.err.println("No atlas selected");
-            return;
+            throw new IllegalArgumentException("No atlas selected: '" + choice + "' is not an atlas name");
         }
         if (!confirmDownloads(principalName)) {
+            cancel("The download of the atlas was declined");
             return;
         }
 
         // Resolve the principal atlas
         Atlas principalAtlas = resolveAtlasByName(principalName);
         if (principalAtlas == null) {
-            System.err.println("Could not resolve principal atlas: " + principalName);
-            return;
+            throw new IllegalArgumentException("Could not open the atlas '" + principalName + "': see the log");
         }
 
         // Parse and resolve additional atlases
