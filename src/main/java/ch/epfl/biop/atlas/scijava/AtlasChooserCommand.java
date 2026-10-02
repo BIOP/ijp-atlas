@@ -97,7 +97,9 @@ public class AtlasChooserCommand extends DynamicCommand {
         String principalName = toAtlasName(choice);
         if (principalName == null) {
             // The separator row, or the BrainGlobe placeholder left unresolved
-            throw new IllegalArgumentException("No atlas selected: '" + choice + "' is not an atlas name");
+            // Refused promptly, with no atlas, as before; the reason now reaches scripts and agents
+            cancel("No atlas selected: '" + choice + "' is not an atlas name");
+            return;
         }
         if (!confirmDownloads(principalName)) {
             cancel("The download of the atlas was declined");
@@ -107,7 +109,8 @@ public class AtlasChooserCommand extends DynamicCommand {
         // Resolve the principal atlas
         Atlas principalAtlas = resolveAtlasByName(principalName);
         if (principalAtlas == null) {
-            throw new IllegalArgumentException("Could not open the atlas '" + principalName + "': see the log");
+            cancel("Could not open the atlas '" + principalName + "': see the log");
+            return;
         }
 
         // Parse and resolve additional atlases
