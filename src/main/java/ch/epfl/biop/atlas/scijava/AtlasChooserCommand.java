@@ -63,7 +63,8 @@ import java.util.function.Supplier;
         description = "Opens a brain atlas, the first step of an ABBA session: its output is the input 'ba' of "
                 + "'ABBA - ABBA Start' and 'ABBA - Align Big Brains and Atlases (no GUI)'. The atlases offered are computed "
                 + "when the command starts: the built-in ones and the BrainGlobe atlases already downloaded, then the "
-                + "BrainGlobe atlases not downloaded yet.",
+                + "BrainGlobe atlases not downloaded yet, once the catalogue was fetched ('List BrainGlobe Atlases' lists all of "
+                + "them, and which are downloaded).",
         initializer = "init",
         iconPath = "/graphics/brainglobe.png")
 public class AtlasChooserCommand extends DynamicCommand {
@@ -77,7 +78,8 @@ public class AtlasChooserCommand extends DynamicCommand {
     @Parameter(label = "Choose an atlas", callback = "checkBrainGlobe",
             description = "Atlas name. Names ending in '_java' are built into ABBA (allen_mouse_10um_java: Allen mouse CCFv3.1; "
                     + "whs_sd_rat_39um_java: Waxholm rat v4.2). Names with '@' and a version (allen_mouse_25um@3.0) are BrainGlobe "
-                    + "atlases, downloaded once, which can take minutes and a few GB. 'Get BrainGlobe Atlases...' opens a "
+                    + "atlases, downloaded once, which can take minutes and a few GB: any published one opens by its name and version, "
+                    + "listed by 'List BrainGlobe Atlases'. 'Get BrainGlobe Atlases...' opens a "
                     + "window to choose one.")
     String choice = "-";
 
@@ -338,7 +340,7 @@ public class AtlasChooserCommand extends DynamicCommand {
      * silently and does not retry this session — the installed atlases listed by
      * {@link BrainGlobeLocalInventory} do not depend on it.
      */
-    private static synchronized void registerBrainGlobeAtlases(Context ctx) {
+    static synchronized void registerBrainGlobeAtlases(Context ctx) {
         if (brainGlobeRegistered) return;
         brainGlobeRegistered = true;
 
