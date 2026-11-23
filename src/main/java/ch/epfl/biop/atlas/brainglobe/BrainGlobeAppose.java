@@ -56,7 +56,7 @@ import org.scijava.task.TaskService;
 public class BrainGlobeAppose {
 
 	/** Default BrainGlobe Atlas API version */
-	public static final String BG_VERSION = "3.0.1";
+	public static final String BG_VERSION = "3.1.0";
 
 	// --- Static session-level cache for atlas listing ---
 
@@ -137,9 +137,9 @@ public class BrainGlobeAppose {
 		}
 
 		PixiBuilder builder = Appose
-				.pixi()
-				.channels("conda-forge")
-				.conda("python=3.11", "appose")
+			.pixi()
+			.channels("conda-forge")
+			.conda("python=3.14", "appose")
 				.pypi("brainglobe-atlasapi==" + bgVersion)
 				.name("brainglobe-abba-" + bgVersion)   // environment is keyed by the brainglobe-atlasapi version
 				.logDebug();
